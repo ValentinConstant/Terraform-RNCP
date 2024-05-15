@@ -1,0 +1,52 @@
+jenkins:
+  systemMessage: "Jenkins configured automatically by Jenkins Configuration as Code plugin"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  credentials:
+    system:
+      domainCredentials:
+        - credentials:
+            - usernamePassword:
+                scope: GLOBAL
+                id: "github-credentials"
+                description: "GitHub Credentials"
+                username: "${GITHUB_USER}"
+                password: "${GITHUB_PAT}"
+  jobs:
+    - script: >
+        pipelineJob('example') {
+          definition {
+            cps {
+              script('''
+                pipeline {
+                  agent any
+                  stages {
+                    stage('Clone Repository') {
+                      steps {
+                        checkout([$class: 'GitSCM',
+                                  branches: [[name: '*/main']],
+                                  userRemoteConfigs: [[url: 'https://github.com/your-username/your-repo', credentialsId: 'github-credentials']]])
+                      }
+                    }
+                    stage('Deploy Application') {
+                      steps {
+                        script {
+                          def namespace = (env.BRANCH_NAME == 'main') ? 'prod' : 'dev'
+                          sh "helm upgrade --install myapp charts/myapp --namespace ${namespace}"
+                        }
+                      }
+                    }
+                  }
+                }
+              '''.stripIndent())
+            }
+          }
+        }

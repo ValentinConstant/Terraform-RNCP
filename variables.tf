@@ -44,3 +44,76 @@ variable "private_key_path" {
 variable "github_pat" {
   description = "GitHub Personal Access Token for accessing private repos"
 }
+
+variable "desired_capacity" {
+  description = "Desired number of worker nodes"
+  type        = number
+  default     = 3
+}
+
+variable "max_size" {
+  description = "Maximum number of worker nodes"
+  type        = number
+  default     = 5
+}
+
+variable "min_size" {
+  description = "Minimum number of worker nodes"
+  type        = number
+  default     = 1
+}
+
+variable "postgres_service_name" {
+  description = "Kubernetes service name for the PostgreSQL StatefulSet"
+  type        = string
+}
+
+variable "postgres_namespace" {
+  description = "Kubernetes namespace for the PostgreSQL StatefulSet"
+  type        = string
+}
+
+variable "postgres_db" {
+  description = "PostgreSQL database name"
+  type        = string
+}
+
+variable "elasticsearch_service_name" {
+  description = "Kubernetes service name for the Elasticsearch StatefulSet"
+  type        = string
+}
+
+variable "elasticsearch_namespace" {
+  description = "Kubernetes namespace for the Elasticsearch StatefulSet"
+  type        = string
+}
+
+variable "etcd_endpoints" {
+  description = "etcd endpoints"
+  type        = string
+}
+
+variable "etcd_cert" {
+  description = "etcd client certificate"
+  type        = string
+}
+
+variable "etcd_key" {
+  description = "etcd client key"
+  type        = string
+}
+
+variable "etcd_ca_cert" {
+  description = "etcd CA certificate"
+  type        = string
+}
+
+variable "aws_access_key_id" {
+  description = "AWS access key ID"
+  type        = string
+}
+
+variable "aws_secret_access_key" {
+  description = "AWS secret access key"
+  type        = string
+}

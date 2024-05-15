@@ -13,18 +13,35 @@ variable "key_name" {
   type        = string
 }
 
-variable "subnet_id" {
-  description = "Subnet ID for the master node"
-  type        = string
-}
-
 variable "subnet_ids" {
-  description = "Subnet IDs for the worker nodes"
+  description = "Subnet IDs for the instances"
   type        = list(string)
 }
 
-variable "worker_count" {
-  description = "Number of worker nodes"
+variable "desired_capacity" {
+  description = "Desired number of worker nodes"
   type        = number
   default     = 3
+}
+
+variable "max_size" {
+  description = "Maximum number of worker nodes"
+  type        = number
+  default     = 5
+}
+
+variable "min_size" {
+  description = "Minimum number of worker nodes"
+  type        = number
+  default     = 1
+}
+
+variable "k3s_url" {
+  description = "URL of the K3s server"
+  type        = string
+}
+
+variable "k3s_token" {
+  description = "Token for the K3s server"
+  type        = string
 }

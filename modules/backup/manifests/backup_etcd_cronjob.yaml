@@ -1,0 +1,36 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: etcd-backup
+  namespace: default
+spec:
+  schedule: "0 4 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: etcd-backup
+            image: amazonlinux:2
+            env:
+            - name: ETCD_ENDPOINTS
+              value: "${ETCD_ENDPOINTS}"
+            - name: ETCD_CERT
+              value: "${ETCD_CERT}"
+            - name: ETCD_KEY
+              value: "${ETCD_KEY}"
+            - name: ETCD_CA_CERT
+              value: "${ETCD_CA_CERT}"
+            - name: AWS_ACCESS_KEY_ID
+              value: "${AWS_ACCESS_KEY_ID}"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "${AWS_SECRET_ACCESS_KEY}"
+            volumeMounts:
+            - name: backup-scripts
+              mountPath: /scripts
+            command: ["/bin/bash", "-c", "/scripts/backup_etcd.sh"]
+          volumes:
+          - name: backup-scripts
+            configMap:
+              name: backup-scripts
+          restartPolicy: OnFailure

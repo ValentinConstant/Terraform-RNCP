@@ -28,18 +28,28 @@ variable "postgres_password" {
   type        = string
 }
 
-variable "postgres_host" {
-  description = "PostgreSQL host"
+variable "postgres_service_name" {
+  description = "Kubernetes service name for the PostgreSQL StatefulSet"
+  type        = string
+}
+
+variable "postgres_namespace" {
+  description = "Kubernetes namespace for the PostgreSQL StatefulSet"
   type        = string
 }
 
 variable "postgres_db" {
-  description = "PostgreSQL database"
+  description = "PostgreSQL database name"
   type        = string
 }
 
-variable "elasticsearch_host" {
-  description = "Elasticsearch host"
+variable "elasticsearch_service_name" {
+  description = "Kubernetes service name for the Elasticsearch StatefulSet"
+  type        = string
+}
+
+variable "elasticsearch_namespace" {
+  description = "Kubernetes namespace for the Elasticsearch StatefulSet"
   type        = string
 }
 
@@ -49,16 +59,26 @@ variable "etcd_endpoints" {
 }
 
 variable "etcd_cert" {
-  description = "etcd certificate"
+  description = "etcd client certificate"
   type        = string
 }
 
 variable "etcd_key" {
-  description = "etcd key"
+  description = "etcd client key"
   type        = string
 }
 
 variable "etcd_ca_cert" {
   description = "etcd CA certificate"
+  type        = string
+}
+
+variable "aws_access_key_id" {
+  description = "AWS access key ID"
+  type        = string
+}
+
+variable "aws_secret_access_key" {
+  description = "AWS secret access key"
   type        = string
 }
