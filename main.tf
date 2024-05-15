@@ -86,6 +86,7 @@ module "backup" {
   postgres_password   = local.postgres_password
   postgres_service_name = var.postgres_service_name
   postgres_namespace  = var.postgres_namespace
+  postgres_db         = var.postgres_db
   elasticsearch_service_name = var.elasticsearch_service_name
   elasticsearch_namespace = var.elasticsearch_namespace
   etcd_endpoints      = var.etcd_endpoints
