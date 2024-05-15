@@ -54,7 +54,7 @@ module "security_groups" {
 
 module "ec2" {
   source           = "./modules/ec2"
-  ami              = "ami-0a91cd140a1fc148a"  # Changez ceci selon votre région
+  ami              = "ami-00ac45f3035ff009e"  # Ubuntu 24.04 LTS for eu-west-3
   instance_type    = var.instance_type
   key_name         = var.key_name
   subnet_ids       = module.vpc.private_subnet_ids
@@ -69,7 +69,7 @@ module "ec2" {
 
 module "bastion" {
   source         = "./modules/bastion"
-  ami            = "ami-0a91cd140a1fc148a"  # Changez ceci selon votre région
+  ami            = "ami-00ac45f3035ff009e"  # Ubuntu 24.04 LTS for eu-west-3
   instance_type  = var.bastion_instance_type
   key_name       = var.key_name
   subnet_id      = element(module.vpc.public_subnet_ids, 0)
