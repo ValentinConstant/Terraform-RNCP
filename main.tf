@@ -102,10 +102,6 @@ module "backup" {
   postgres_db         = var.postgres_db
   elasticsearch_service_name = var.elasticsearch_service_name
   elasticsearch_namespace = var.elasticsearch_namespace
-  etcd_endpoints      = var.etcd_endpoints
-  etcd_cert           = var.etcd_cert
-  etcd_key            = var.etcd_key
-  etcd_ca_cert        = var.etcd_ca_cert
   aws_access_key_id   = var.aws_access_key_id
   aws_secret_access_key = var.aws_secret_access_key
 }

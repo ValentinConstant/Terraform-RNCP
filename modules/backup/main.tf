@@ -46,10 +46,6 @@ resource "kubernetes_manifest" "elasticsearch_backup_cronjob" {
 
 resource "kubernetes_manifest" "etcd_backup_cronjob" {
   manifest = templatefile("${path.module}/manifests/backup_etcd_cronjob.yaml", {
-    ETCD_ENDPOINTS       = var.etcd_endpoints
-    ETCD_CERT            = var.etcd_cert
-    ETCD_KEY             = var.etcd_key
-    ETCD_CA_CERT         = var.etcd_ca_cert
     ETCD_BUCKET          = var.etcd_bucket
     AWS_ACCESS_KEY_ID    = var.aws_access_key_id
     AWS_SECRET_ACCESS_KEY = var.aws_secret_access_key

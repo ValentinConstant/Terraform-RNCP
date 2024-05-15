@@ -88,26 +88,6 @@ variable "elasticsearch_namespace" {
   type        = string
 }
 
-variable "etcd_endpoints" {
-  description = "etcd endpoints"
-  type        = string
-}
-
-variable "etcd_cert" {
-  description = "etcd client certificate"
-  type        = string
-}
-
-variable "etcd_key" {
-  description = "etcd client key"
-  type        = string
-}
-
-variable "etcd_ca_cert" {
-  description = "etcd CA certificate"
-  type        = string
-}
-
 variable "aws_access_key_id" {
   description = "AWS access key ID"
   type        = string

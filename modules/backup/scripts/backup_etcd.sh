@@ -1,12 +1,11 @@
 #!/bin/bash
 TIMESTAMP=$(date +"%F-%H-%M-%S")
-BACKUP_FILE="/tmp/etcd-backup-$TIMESTAMP.db"
-ETCDCTL_API=3
-ETCD_ENDPOINTS="${var.etcd_endpoints}"
-ETCD_CERT="${var.etcd_cert}"
-ETCD_KEY="${var.etcd_key}"
-ETCD_CA_CERT="${var.etcd_ca_cert}"
+BACKUP_DIR="/var/lib/rancher/k3s/server/db/snapshots"
+BACKUP_FILE="$BACKUP_DIR/etcd-snapshot-$TIMESTAMP.db"
 
-etcdctl --endpoints=$ETCD_ENDPOINTS --cert=$ETCD_CERT --key=$ETCD_KEY --cacert=$ETCD_CA_CERT snapshot save $BACKUP_FILE
+# Save etcd snapshot
+k3s etcd-snapshot save --etcd-snapshot-dir="$BACKUP_DIR"
+
 aws s3 cp $BACKUP_FILE s3://${var.etcd_bucket}/
+
 rm $BACKUP_FILE
