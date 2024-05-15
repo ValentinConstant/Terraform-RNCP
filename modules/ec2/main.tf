@@ -3,6 +3,7 @@ resource "aws_instance" "master" {
   instance_type = var.instance_type
   key_name      = var.key_name
   subnet_id     = element(var.subnet_ids, 0)
+  vpc_security_group_ids = [var.security_group_id]
 
   user_data = file("${path.module}/user_data_master.sh")
 
@@ -16,6 +17,7 @@ resource "aws_launch_template" "k3s_worker" {
   image_id      = var.ami
   instance_type = var.instance_type
   key_name      = var.key_name
+  vpc_security_group_ids = [var.security_group_id]
 
   user_data = templatefile("${path.module}/user_data_worker.sh", {
     K3S_URL   = var.k3s_url,

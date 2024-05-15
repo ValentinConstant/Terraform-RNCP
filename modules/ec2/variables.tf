@@ -45,3 +45,13 @@ variable "k3s_token" {
   description = "Token for the K3s server"
   type        = string
 }
+
+variable "security_group_id" {
+  description = "Security group ID for the EC2 instances"
+  type        = string
+}
+
+variable "iam_instance_profile" {
+  description = "IAM instance profile name"
+  type        = string
+}

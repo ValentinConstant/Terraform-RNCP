@@ -1,3 +1,3 @@
 output "grafana_url" {
-  value = helm_release.grafana.url
+  value = helm_release.grafana.name
 }

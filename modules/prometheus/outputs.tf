@@ -1,3 +1,3 @@
 output "prometheus_url" {
-  value = helm_release.prometheus.url
+  value = helm_release.prometheus.name
 }

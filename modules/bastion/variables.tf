@@ -17,3 +17,8 @@ variable "subnet_id" {
   description = "Subnet ID for the bastion host"
   type        = string
 }
+
+variable "security_group_id" {
+  description = "Security group ID for the bastion host"
+  type        = string
+}

@@ -63,6 +63,8 @@ module "ec2" {
   min_size         = var.min_size
   k3s_url          = "https://${module.ec2.master_private_ip}:6443"
   k3s_token        = local.k3s_token
+  security_group_id   = module.security_groups.ec2_sg_id
+  iam_instance_profile = module.iam.ec2_instance_profile_name
 }
 
 module "bastion" {
@@ -71,6 +73,7 @@ module "bastion" {
   instance_type  = var.bastion_instance_type
   key_name       = var.key_name
   subnet_id      = element(module.vpc.public_subnet_ids, 0)
+  security_group_id  = module.security_groups.bastion_sg_id
 }
 
 module "jenkins" {
