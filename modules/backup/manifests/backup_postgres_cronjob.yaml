@@ -21,6 +21,8 @@ spec:
               value: "${PGHOST}"
             - name: PGDATABASE
               value: "${PGDATABASE}"
+            - name: POSTGRES_BUCKET
+              value: "${POSTGRES_BUCKET}"
             - name: AWS_ACCESS_KEY_ID
               value: "${AWS_ACCESS_KEY_ID}"
             - name: AWS_SECRET_ACCESS_KEY

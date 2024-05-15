@@ -9,7 +9,9 @@ resource "aws_instance" "master" {
   subnet_id     = element(var.subnet_ids, 0)
   vpc_security_group_ids = [var.security_group_id]
 
-  user_data = file("${path.module}/user_data_master.sh")
+  user_data = templatefile("${path.module}/user_data_master.sh", {
+    K3S_TOKEN = var.k3s_token
+  })
 
   tags = {
     Name = "k3s-master"

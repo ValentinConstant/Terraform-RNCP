@@ -13,6 +13,8 @@ spec:
           - name: etcd-backup
             image: amazonlinux:2
             env:
+            - name: ETCD_BUCKET
+              value: "${ETCD_BUCKET}"
             - name: AWS_ACCESS_KEY_ID
               value: "${AWS_ACCESS_KEY_ID}"
             - name: AWS_SECRET_ACCESS_KEY

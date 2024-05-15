@@ -80,3 +80,17 @@ Pour les sauvegardes :
     - Permet le trafic sur le port K3s (6443) depuis les sous-réseaux privés
     - Permet le trafic entre nœuds sur tous les ports
 - Règles Egress : Permet tout le trafic sortant
+
+
+
+# Déploiement :
+
+## Tâches préalables :
+- Génération du token k3s :
+```export K3S_TOKEN=$(openssl rand -base64 32)```
+- Stockage du token dans AWS secret manager
+```aws secretsmanager create-secret --name k3s/token --secret-string "{\"token\":\"$K3S_TOKEN\"}"```
+- Stokage de la même manière des autres secrets :
+    - GitHub PAT
+    - PostgreSQL Credentials
+    - Jenkins Admin Password
