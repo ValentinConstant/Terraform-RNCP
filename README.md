@@ -21,7 +21,7 @@
 - Sous-réseau : Sous-réseau privé dans eu-west-3a
 - AMI : ami-0a91cd140a1fc148a (exemple)
 ## Groupe d'Auto-scaling (ASG) pour les noeuds worker
-- Template de lancement :
+Template de lancement :
 - Type d'instance : t3.medium
 - AMI : ami-0a91cd140a1fc148a (exemple)
 - Script User Data : Script pour rejoindre le cluster K3s
