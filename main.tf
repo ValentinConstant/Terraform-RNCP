@@ -39,6 +39,19 @@ module "vpc" {
   azs            = var.azs
 }
 
+module "iam" {
+  source               = "./modules/iam"
+  region               = var.region
+  postgres_bucket      = "your-postgres-backup-bucket"
+  elasticsearch_bucket = "your-elasticsearch-backup-bucket"
+  etcd_bucket          = "your-etcd-backup-bucket"
+}
+
+module "security_groups" {
+  source = "./modules/security_groups"
+  vpc_id = module.vpc.vpc_id
+}
+
 module "ec2" {
   source           = "./modules/ec2"
   ami              = "ami-0a91cd140a1fc148a"  # Changez ceci selon votre région
