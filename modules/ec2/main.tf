@@ -1,3 +1,7 @@
+data "aws_autoscaling_group" "workers" {
+  name = aws_autoscaling_group.k3s_workers.name
+}
+
 resource "aws_instance" "master" {
   ami           = var.ami
   instance_type = var.instance_type

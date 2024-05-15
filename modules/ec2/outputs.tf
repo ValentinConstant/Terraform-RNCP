@@ -1,9 +1,16 @@
+data "aws_instances" "workers" {
+  filter {
+    name   = "tag:Name"
+    values = ["k3s-worker"]
+  }
+}
+
 output "worker_private_ips" {
-  value = aws_autoscaling_group.k3s_workers.instances[*].private_ip
+  value = data.aws_instances.workers.private_ips
 }
 
 output "worker_instance_ids" {
-  value = aws_autoscaling_group.k3s_workers.instances[*].id
+  value = data.aws_instances.workers.ids
 }
 
 output "master_private_ip" {
