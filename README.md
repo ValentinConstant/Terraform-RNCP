@@ -61,3 +61,22 @@ Pour les sauvegardes :
 - Hôte Bastion : Fournit un accès SSH sécurisé au noeud Master et aux noeuds Worker dans les sous-réseaux privés.
 - Noeud Master : Communique avec les noeuds Worker via le plan de contrôle K3s.
 - Noeuds Worker : Gérés par le groupe d'auto-scaling pour assurer la haute disponibilité et la scalabilité.
+## Rôles IAM
+### Rôle IAM pour les instances EC2 :
+- Nom du rôle : ec2-role
+- Politique d'assumer le rôle : Permet à EC2 d'assumer le rôle
+- Politique d'accès : Accès à Secrets Manager et S3
+## Groupes de Sécurité (Security Groups)
+### Groupe de sécurité pour le Bastion Host :
+- Nom : bastion-sg
+- Description : Security group for the bastion host
+- Règles Ingress : Permet l'accès SSH (port 22) depuis n'importe quelle IP
+- Règles Egress : Permet tout le trafic sortant
+### Groupe de sécurité pour les instances EC2 :
+- Nom : ec2-sg
+- Description : Security group for the EC2 instances
+- Règles Ingress :
+    - Permet l'accès SSH depuis le Bastion Host (port 22)
+    - Permet le trafic sur le port K3s (6443) depuis les sous-réseaux privés
+    - Permet le trafic entre nœuds sur tous les ports
+- Règles Egress : Permet tout le trafic sortant
