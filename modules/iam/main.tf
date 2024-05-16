@@ -1,16 +1,15 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "ec2_role" {
-  name = "ec2-role"
-
+  name = "ec2-role-RNCP-Infra"
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow"
+        Effect = "Allow",
         Principal = {
           Service = "ec2.amazonaws.com"
-        }
+        },
         Action = "sts:AssumeRole"
       }
     ]
@@ -18,39 +17,54 @@ resource "aws_iam_role" "ec2_role" {
 }
 
 resource "aws_iam_policy" "ec2_access_policy" {
-  name        = "EC2AccessPolicy"
-  description = "Policy for EC2 instances to access Secrets Manager and S3"
-
+  name        = "EC2AccessPolicy-RNCP-Infra"
+  description = "Policy for EC2 instances to access S3 and Secrets Manager"
   policy = jsonencode({
-    Version = "2012-10-17"
+    Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow"
-        Action = [
-          "secretsmanager:GetSecretValue",
+        Effect: "Allow",
+        Action: [
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ],
+        Resource: [
+          "arn:aws:s3:::elasticsearch-backup-bucket-936b40a0",
+          "arn:aws:s3:::postgres-backup-bucket-936b40a0",
+          "arn:aws:s3:::etcd-backup-bucket-936b40a0"
+        ]
+      },
+      {
+        Effect: "Allow",
+        Action: [
           "s3:PutObject",
-          "s3:GetObject"
+          "s3:GetObject",
+          "s3:DeleteObject"
+        ],
+        Resource: [
+          "arn:aws:s3:::elasticsearch-backup-bucket-936b40a0/*",
+          "arn:aws:s3:::postgres-backup-bucket-936b40a0/*",
+          "arn:aws:s3:::etcd-backup-bucket-936b40a0/*"
         ]
-        Resource = [
-          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:github/*",
-          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:postgres/*",
-          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:jenkins/*",
-          "arn:aws:secretsmanager:${var.region}:${data.aws_caller_identity.current.account_id}:secret:k3s/*",
-          "arn:aws:s3:::${var.postgres_bucket}/*",
-          "arn:aws:s3:::${var.elasticsearch_bucket}/*",
-          "arn:aws:s3:::${var.etcd_bucket}/*"
-        ]
+      },
+      {
+        Effect: "Allow",
+        Action: [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret"
+        ],
+        Resource: "*"
       }
     ]
   })
 }
 
+resource "aws_iam_instance_profile" "ec2_instance_profile" {
+  name = "ec2-instance-profile-RNCP-Infra"
+  role = aws_iam_role.ec2_role.name
+}
+
 resource "aws_iam_role_policy_attachment" "ec2_role_policy_attachment" {
   role       = aws_iam_role.ec2_role.name
   policy_arn = aws_iam_policy.ec2_access_policy.arn
-}
-
-resource "aws_iam_instance_profile" "ec2_instance_profile" {
-  name = "ec2-instance-profile"
-  role = aws_iam_role.ec2_role.name
 }

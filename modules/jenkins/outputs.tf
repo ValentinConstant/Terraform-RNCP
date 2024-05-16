@@ -1,3 +1,4 @@
 output "jenkins_url" {
-  value = helm_release.jenkins.name
+  description = "URL of the Jenkins instance"
+  value       = helm_release.jenkins.name
 }

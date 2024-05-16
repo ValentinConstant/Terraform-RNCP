@@ -1,19 +1,14 @@
-output "vpc_id" {
-  value = module.vpc.vpc_id
+output "kubeconfig" {
+  description = "Path to the kubeconfig file"
+  value       = module.ec2.kubeconfig
 }
 
-output "public_subnet_ids" {
-  value = module.vpc.public_subnet_ids
-}
-
-output "private_subnet_ids" {
-  value = module.vpc.private_subnet_ids
+output "bastion_public_ip" {
+  description = "Public IP address of the bastion host"
+  value       = module.bastion.bastion_public_ip
 }
 
 output "master_private_ip" {
-  value = module.ec2.master_private_ip
-}
-
-output "worker_private_ips" {
-  value = module.ec2.worker_private_ips
+  description = "Private IP address of the master node"
+  value       = module.ec2.master_private_ip
 }

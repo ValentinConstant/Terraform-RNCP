@@ -1,99 +1,59 @@
 variable "region" {
-  description = "AWS region to deploy resources"
-  default     = "eu-west-3"
+  description = "The AWS region to deploy in"
+  type        = string
 }
 
 variable "vpc_cidr" {
-  description = "VPC CIDR block"
-  default     = "10.0.0.0/16"
+  description = "The CIDR block for the VPC"
+  type        = string
 }
 
 variable "public_subnets" {
-  description = "Public subnets"
-  default     = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+  description = "A list of public subnets"
+  type        = list(string)
 }
 
 variable "private_subnets" {
-  description = "Private subnets"
-  default     = ["10.0.4.0/24", "10.0.5.0/24", "10.0.6.0/24"]
+  description = "A list of private subnets"
+  type        = list(string)
 }
 
 variable "azs" {
-  description = "Availability Zones"
-  default     = ["eu-west-3a", "eu-west-3b", "eu-west-3c"]
+  description = "A list of availability zones"
+  type        = list(string)
 }
 
 variable "instance_type" {
-  description = "EC2 instance type"
-  default     = "t3.medium"
-}
-
-variable "bastion_instance_type" {
-  description = "Instance type for the bastion host"
-  default     = "t3.micro"
+  description = "EC2 instance type for the master and worker nodes"
+  type        = string
 }
 
 variable "key_name" {
   description = "Key pair name for SSH access"
-}
-
-variable "private_key_path" {
-  description = "Path to the private key for SSH access"
-}
-
-variable "github_pat" {
-  description = "GitHub Personal Access Token for accessing private repos"
+  type        = string
 }
 
 variable "desired_capacity" {
-  description = "Desired number of worker nodes"
+  description = "Desired capacity for the worker node auto-scaling group"
   type        = number
-  default     = 3
 }
 
 variable "max_size" {
-  description = "Maximum number of worker nodes"
+  description = "Maximum size for the worker node auto-scaling group"
   type        = number
-  default     = 5
 }
 
 variable "min_size" {
-  description = "Minimum number of worker nodes"
+  description = "Minimum size for the worker node auto-scaling group"
   type        = number
-  default     = 1
 }
 
-variable "postgres_service_name" {
-  description = "Kubernetes service name for the PostgreSQL StatefulSet"
+variable "bastion_instance_type" {
+  description = "EC2 instance type for the bastion host"
   type        = string
 }
 
-variable "postgres_namespace" {
-  description = "Kubernetes namespace for the PostgreSQL StatefulSet"
-  type        = string
-}
-
-variable "postgres_db" {
-  description = "PostgreSQL database name"
-  type        = string
-}
-
-variable "elasticsearch_service_name" {
-  description = "Kubernetes service name for the Elasticsearch StatefulSet"
-  type        = string
-}
-
-variable "elasticsearch_namespace" {
-  description = "Kubernetes namespace for the Elasticsearch StatefulSet"
-  type        = string
-}
-
-variable "aws_access_key_id" {
-  description = "AWS access key ID"
-  type        = string
-}
-
-variable "aws_secret_access_key" {
-  description = "AWS secret access key"
+variable "ami" {
+  description = "AMI ID for the EC2 instances"
   type        = string
 }

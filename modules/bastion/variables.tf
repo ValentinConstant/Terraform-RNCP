@@ -4,7 +4,7 @@ variable "ami" {
 }
 
 variable "instance_type" {
-  description = "Instance type for the bastion host"
+  description = "EC2 instance type for the bastion host"
   type        = string
 }
 
@@ -14,11 +14,11 @@ variable "key_name" {
 }
 
 variable "subnet_id" {
-  description = "Subnet ID for the bastion host"
+  description = "The subnet ID for the bastion host"
   type        = string
 }
 
 variable "security_group_id" {
-  description = "Security group ID for the bastion host"
+  description = "The security group ID for the bastion host"
   type        = string
 }
