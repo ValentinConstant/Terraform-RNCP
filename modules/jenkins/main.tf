@@ -1,3 +1,13 @@
+provider "kubernetes" {
+  config_path = "${path.module}/../../kubeconfig"
+}
+
+provider "helm" {
+  kubernetes {
+    config_path = "${path.module}/../../kubeconfig"
+  }
+}
+
 resource "helm_release" "jenkins" {
   name       = "jenkins"
   repository = "https://charts.jenkins.io"

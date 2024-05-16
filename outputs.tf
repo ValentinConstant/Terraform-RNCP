@@ -1,8 +1,3 @@
-output "kubeconfig" {
-  description = "Path to the kubeconfig file"
-  value       = module.ec2.kubeconfig
-}
-
 output "bastion_public_ip" {
   description = "Public IP address of the bastion host"
   value       = module.bastion.bastion_public_ip

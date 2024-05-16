@@ -46,11 +46,3 @@ resource "aws_autoscaling_group" "k3s_workers" {
     propagate_at_launch = true
   }
 }
-
-resource "local_file" "kubeconfig" {
-  content  = templatefile("${path.module}/templates/kubeconfig.tpl", {
-    server = aws_instance.master.public_ip,
-    token = var.k3s_token
-  })
-  filename = "${path.module}/kubeconfig"
-}

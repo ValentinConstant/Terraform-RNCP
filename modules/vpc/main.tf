@@ -56,7 +56,7 @@ resource "aws_route_table_association" "public" {
 }
 
 resource "aws_nat_gateway" "main" {
-  count         = length(var.azs)
+  count = length(var.public_subnets)
   allocation_id = aws_eip.nat[count.index].id
   subnet_id     = element(aws_subnet.public[*].id, count.index)
 
@@ -66,7 +66,7 @@ resource "aws_nat_gateway" "main" {
 }
 
 resource "aws_eip" "nat" {
-  count = length(var.azs)
+  count = length(var.public_subnets)
   domain = "vpc"
 
   tags = {

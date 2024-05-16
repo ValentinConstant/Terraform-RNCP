@@ -85,3 +85,4 @@ Pour les sauvegardes :
     - GitHub PAT
     - PostgreSQL Credentials
     - Jenkins Admin Password
+    - Clé SSH pour l'accès au Bastion et EC2

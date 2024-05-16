@@ -2,6 +2,16 @@ provider "aws" {
   region = var.region
 }
 
+provider "kubernetes" {
+  config_path = "${path.module}/modules/ec2/kubeconfig"
+}
+
+provider "helm" {
+  kubernetes {
+    config_path = "${path.module}/modules/ec2/kubeconfig"
+  }
+}
+
 data "aws_caller_identity" "current" {}
 
 data "aws_secretsmanager_secret_version" "k3s_token" {
@@ -52,6 +62,7 @@ module "bastion" {
   key_name       = var.key_name
   subnet_id      = element(module.vpc.public_subnet_ids, 0)
   security_group_id = module.security_groups.bastion_sg_id
+  iam_instance_profile = module.iam.bastion_profile_name
 }
 
 module "ec2" {
@@ -69,8 +80,18 @@ module "ec2" {
   k3s_token           = local.k3s_token
 }
 
+resource "local_file" "kubeconfig" {
+  content  = templatefile("${path.module}/templates/kubeconfig.tpl", {
+    server   = "${module.ec2.master_private_ip}",
+    token    = local.k3s_token
+  })
+  filename = "${path.module}/kubeconfig"
+}
+
 module "jenkins" {
   source               = "./modules/jenkins"
   master_private_ip    = module.ec2.master_private_ip
   jenkins_admin_password = local.jenkins_admin_password
+
+  # depends_on = [module.ec2]
 }

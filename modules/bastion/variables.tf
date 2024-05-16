@@ -22,3 +22,8 @@ variable "security_group_id" {
   description = "The security group ID for the bastion host"
   type        = string
 }
+
+variable "iam_instance_profile" {
+  description = "The IAM instance profile to attach to the bastion host"
+  type        = string
+}
