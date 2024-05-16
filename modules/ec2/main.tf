@@ -25,11 +25,11 @@ resource "aws_launch_template" "k3s_worker" {
   key_name      = var.key_name
   vpc_security_group_ids = [var.security_group_id]
 
-  user_data = templatefile("${path.module}/user_data_worker.sh", {
+  user_data = base64encode(templatefile("${path.module}/user_data_worker.sh", {
     MASTER_PRIVATE_IP = aws_instance.master.private_ip,
-    K3S_URL   = var.k3s_url,
-    K3S_TOKEN = var.k3s_token
-  })
+    K3S_URL           = var.k3s_url,
+    K3S_TOKEN         = var.k3s_token
+  }))
 
   lifecycle {
     create_before_destroy = true
