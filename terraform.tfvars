@@ -10,3 +10,6 @@ max_size            = 3
 min_size            = 1
 bastion_instance_type = "t3.micro"
 ami                 = "ami-00ac45f3035ff009e"  # Ubuntu 24.04 LTS for eu-west-3
+elasticsearch_bucket = "elasticsearch-backup-bucket-rncp-infra-936b40a0"
+postgres_bucket     = "postgres-backup-bucket-rncp-infra-936b40a0"
+etcd_bucket         = "etcd-backup-bucket-rncp-infra-936b40a0"

@@ -1,8 +1,3 @@
-variable "region" {
-  description = "The AWS region to deploy in"
-  type        = string
-}
-
 variable "elasticsearch_bucket" {
   description = "Name of the S3 bucket for Elasticsearch backups"
   type        = string

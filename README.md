@@ -47,15 +47,6 @@ Pour les sauvegardes :
 ### Jenkins :
 - Namespace : default
 - Rôle : Serveur CI/CD connecté à GitHub
-- Configuration : Utilisation de Jenkins Configuration as Code (JCasC)
-### Prometheus :
-- Namespace : monitoring
-- Rôle : Surveillance et alertes
-- Configuration : Déployé via Helm
-### Grafana :
-- Namespace : monitoring
-- Rôle : Visualisation des métriques
-- Configuration : Déployé via Helm
 ## Connectivité Réseau
 - Client externe : Se connecte à l'hôte Bastion.
 - Hôte Bastion : Fournit un accès SSH sécurisé au noeud Master et aux noeuds Worker dans les sous-réseaux privés.

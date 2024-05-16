@@ -25,14 +25,24 @@ module "vpc" {
   azs            = var.azs
 }
 
+module "iam" {
+  source = "./modules/iam"
+  region = var.region
+  elasticsearch_bucket = var.elasticsearch_bucket
+  postgres_bucket = var.postgres_bucket
+  etcd_bucket = var.etcd_bucket
+}
+
 module "security_groups" {
   source = "./modules/security_groups"
   vpc_id = module.vpc.vpc_id
 }
 
-module "iam" {
-  source = "./modules/iam"
-  region = var.region
+module "s3" {
+  source = "./modules/s3"
+  elasticsearch_bucket = var.elasticsearch_bucket
+  postgres_bucket = var.postgres_bucket
+  etcd_bucket = var.etcd_bucket
 }
 
 module "bastion" {

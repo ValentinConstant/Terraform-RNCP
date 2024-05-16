@@ -2,7 +2,7 @@ resource "helm_release" "jenkins" {
   name       = "jenkins"
   repository = "https://charts.jenkins.io"
   chart      = "jenkins"
-  version    = "3.1.1"
+  version    = "5.1.16"
 
   set {
     name  = "master.adminPassword"

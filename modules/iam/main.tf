@@ -1,7 +1,7 @@
 data "aws_caller_identity" "current" {}
 
 resource "aws_iam_role" "ec2_role" {
-  name = "ec2-role-RNCP-Infra"
+  name = "ec2-role-unique"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -17,7 +17,7 @@ resource "aws_iam_role" "ec2_role" {
 }
 
 resource "aws_iam_policy" "ec2_access_policy" {
-  name        = "EC2AccessPolicy-RNCP-Infra"
+  name        = "EC2AccessPolicy-unique"
   description = "Policy for EC2 instances to access S3 and Secrets Manager"
   policy = jsonencode({
     Version = "2012-10-17",
@@ -29,9 +29,9 @@ resource "aws_iam_policy" "ec2_access_policy" {
           "s3:GetBucketLocation"
         ],
         Resource: [
-          "arn:aws:s3:::elasticsearch-backup-bucket-936b40a0",
-          "arn:aws:s3:::postgres-backup-bucket-936b40a0",
-          "arn:aws:s3:::etcd-backup-bucket-936b40a0"
+          "arn:aws:s3:::${var.elasticsearch_bucket}",
+          "arn:aws:s3:::${var.postgres_bucket}",
+          "arn:aws:s3:::${var.etcd_bucket}"
         ]
       },
       {
@@ -42,9 +42,9 @@ resource "aws_iam_policy" "ec2_access_policy" {
           "s3:DeleteObject"
         ],
         Resource: [
-          "arn:aws:s3:::elasticsearch-backup-bucket-936b40a0/*",
-          "arn:aws:s3:::postgres-backup-bucket-936b40a0/*",
-          "arn:aws:s3:::etcd-backup-bucket-936b40a0/*"
+          "arn:aws:s3:::${var.elasticsearch_bucket}/*",
+          "arn:aws:s3:::${var.postgres_bucket}/*",
+          "arn:aws:s3:::${var.etcd_bucket}/*"
         ]
       },
       {
@@ -60,7 +60,7 @@ resource "aws_iam_policy" "ec2_access_policy" {
 }
 
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
-  name = "ec2-instance-profile-RNCP-Infra"
+  name = "ec2-instance-profile-unique"
   role = aws_iam_role.ec2_role.name
 }
 
