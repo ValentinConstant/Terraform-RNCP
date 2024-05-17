@@ -2,15 +2,15 @@ provider "aws" {
   region = var.region
 }
 
-provider "kubernetes" {
-  config_path = "${path.module}/modules/ec2/kubeconfig"
-}
+# provider "kubernetes" {
+#   config_path = "${path.module}/kubeconfig"
+# }
 
-provider "helm" {
-  kubernetes {
-    config_path = "${path.module}/modules/ec2/kubeconfig"
-  }
-}
+# provider "helm" {
+#   kubernetes {
+#     config_path = "${path.module}/kubeconfig"
+#   }
+# }
 
 data "aws_caller_identity" "current" {}
 
