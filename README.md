@@ -86,3 +86,5 @@ Pour les sauvegardes :
     - PostgreSQL Credentials
     - Jenkins Admin Password
     - Clé SSH pour l'accès au Bastion et EC2
+- Demande de certificat sur ACM manager pour l'ALB
+- Associer le nom de domaine ClouDNS pour le DNS de l'ALB

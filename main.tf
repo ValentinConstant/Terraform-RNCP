@@ -80,6 +80,15 @@ module "ec2" {
   k3s_token           = local.k3s_token
 }
 
+module "alb" {
+  source             = "./modules/alb"
+  vpc_id             = module.vpc.vpc_id
+  subnet_ids         = module.vpc.private_subnet_ids
+  security_group_id  = module.security_groups.lb_sg_id
+  master_node        = module.ec2.master_node
+  workers_asg        = module.ec2.workers_asg
+}
+
 resource "local_file" "kubeconfig" {
   content  = templatefile("${path.module}/templates/kubeconfig.tpl", {
     server   = "${module.ec2.master_private_ip}",
@@ -88,10 +97,10 @@ resource "local_file" "kubeconfig" {
   filename = "${path.module}/kubeconfig"
 }
 
-module "jenkins" {
-  source               = "./modules/jenkins"
-  master_private_ip    = module.ec2.master_private_ip
-  jenkins_admin_password = local.jenkins_admin_password
+# module "jenkins" {
+#   source               = "./modules/jenkins"
+#   master_private_ip    = module.ec2.master_private_ip
+#   jenkins_admin_password = local.jenkins_admin_password
 
-  # depends_on = [module.ec2]
-}
+#   # depends_on = [module.ec2]
+# }
