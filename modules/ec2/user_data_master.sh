@@ -31,4 +31,4 @@ SERVER_URL=$(hostname -I | awk '{print $1}')
 K3S_URL="https://${SERVER_URL}:6443"
 
 # Save master datas to AWS Secrets Manager
-aws secretsmanager create-secret --name $SECRET_NAME_K3S --secret-string "{\"k3s_token\":\"$TOKEN\", \"k3s_url\":\"$K3S_URL\"}"
+aws secretsmanager update-secret --name $SECRET_NAME_K3S --secret-string "{\"k3s_token\":\"$TOKEN\", \"k3s_url\":\"$K3S_URL\"}"
