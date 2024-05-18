@@ -17,6 +17,8 @@ echo "$SECRET_SSH_VALUE" > /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
 chmod 600 /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
 chown ubuntu:ubuntu /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
 
+sudo systemctl stop k3s.service
+
 # Get K3S master datas
 SECRET_NAME_K3S="k3s-secrets"
 SECRETS_K3S_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_K3S --query 'SecretString' --output text)
