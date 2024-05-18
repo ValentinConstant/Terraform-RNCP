@@ -1,10 +1,5 @@
 #!/bin/bash
 
-SECRET_NAME_SSH="ssh-key"
-SECRET_NAME_K3S="k3s-secrets"
-REGION="${region}"
-SECRET_SSH_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_SSH --query 'SecretString' --output text --region $REGION)
-
 # Update the package list and install packages
 sudo apt-get update
 sudo apt-get install -y curl unzip jq
@@ -15,12 +10,16 @@ unzip awscliv2.zip
 sudo ./aws/install
 
 # Get SSH key
+SECRET_NAME_SSH="ssh-key"
+SECRET_SSH_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_SSH --query 'SecretString' --output text)
+
 echo "$SECRET_SSH_VALUE" > /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
 chmod 600 /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
 chown ubuntu:ubuntu /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
 
 # Get K3S master datas
-SECRETS_K3S_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_K3S --region $REGION --query 'SecretString' --output text)
+SECRET_NAME_K3S="k3s-secrets"
+SECRETS_K3S_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_K3S --query 'SecretString' --output text)
 K3S_TOKEN=$(echo $SECRETS | jq -r '.k3s_token')
 K3S_URL=$(echo $SECRETS | jq -r '.k3s_url')
 

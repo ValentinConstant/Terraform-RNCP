@@ -1,9 +1,5 @@
 #!/bin/bash
 
-SECRET_NAME_SSH="ssh-key"
-SECRET_NAME_K3S="k3s-secrets"
-SECRET_SSH_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_SSH --query 'SecretString' --output text)
-
 # Update the package list and install packages
 sudo apt-get update
 sudo apt-get install -y curl unzip
@@ -14,6 +10,9 @@ unzip awscliv2.zip
 sudo ./aws/install
 
 # Get SSH key
+SECRET_NAME_SSH="ssh-key"
+SECRET_SSH_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_SSH --query 'SecretString' --output text)
+
 echo "$SECRET_SSH_VALUE" > /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
 chmod 600 /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
 chown ubuntu:ubuntu /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
@@ -27,6 +26,7 @@ sudo chmod 644 /etc/rancher/k3s/k3s.yaml
 TOKEN=$(sudo cat /var/lib/rancher/k3s/server/node-token)
 
 # Extract private master ip
+SECRET_NAME_K3S="k3s-secrets"
 SERVER_URL=$(hostname -I | awk '{print $1}')
 K3S_URL="https://${SERVER_URL}:6443"
 
