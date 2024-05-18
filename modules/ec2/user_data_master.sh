@@ -2,9 +2,7 @@
 
 SECRET_NAME_SSH="ssh-key"
 SECRET_NAME_K3S="k3s-secrets"
-REGION="${region}"
-SECRET_SSH_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_SSH --query 'SecretString' --output text --region $REGION)
-K3S_TOKEN="${k3s_token}"
+SECRET_SSH_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_SSH --query 'SecretString' --output text)
 
 # Update the package list and install packages
 sudo apt-get update
@@ -33,4 +31,4 @@ SERVER_URL=$(hostname -I | awk '{print $1}')
 K3S_URL="https://${SERVER_URL}:6443"
 
 # Save master datas to AWS Secrets Manager
-aws secretsmanager create-secret --name $SECRET_NAME_K3S --region $REGION --secret-string "{\"k3s_token\":\"$TOKEN\", \"k3s_url\":\"$K3S_URL\"}"
+aws secretsmanager create-secret --name $SECRET_NAME_K3S --secret-string "{\"k3s_token\":\"$TOKEN\", \"k3s_url\":\"$K3S_URL\"}"

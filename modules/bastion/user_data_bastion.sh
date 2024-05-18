@@ -1,7 +1,6 @@
 #!/bin/bash
 SECRET_NAME="ssh-key"
-REGION="${region}"
-SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME --query 'SecretString' --output text --region $REGION)
+SECRET_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME --query 'SecretString' --output text)
 
 # Update the package list and install necessary packages
 sudo apt-get update
