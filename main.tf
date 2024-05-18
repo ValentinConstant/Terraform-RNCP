@@ -14,18 +14,13 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
-data "aws_secretsmanager_secret_version" "k3s_token" {
-  secret_id = "k3s/token"
-}
+# data "aws_secretsmanager_secret_version" "k3s_token" {
+#   secret_id = "k3s/token"
+# }
 
-data "aws_secretsmanager_secret_version" "jenkins_admin_password" {
-  secret_id = "jenkins/admin_password"
-}
-
-locals {
-  k3s_token = jsondecode(data.aws_secretsmanager_secret_version.k3s_token.secret_string).token
-  jenkins_admin_password = jsondecode(data.aws_secretsmanager_secret_version.jenkins_admin_password.secret_string).password
-}
+# locals {
+#   k3s_token = jsondecode(data.aws_secretsmanager_secret_version.k3s_token.secret_string).token
+# }
 
 module "vpc" {
   source         = "./modules/vpc"
@@ -77,7 +72,8 @@ module "ec2" {
   min_size            = var.min_size
   security_group_id   = module.security_groups.ec2_sg_id
   iam_instance_profile = module.iam.ec2_instance_profile_name
-  k3s_token           = local.k3s_token
+  
+  # k3s_token           = local.k3s_token
 }
 
 module "alb" {
@@ -89,18 +85,10 @@ module "alb" {
   workers_asg        = module.ec2.workers_asg
 }
 
-resource "local_file" "kubeconfig" {
-  content  = templatefile("${path.module}/templates/kubeconfig.tpl", {
-    server   = "${module.ec2.master_private_ip}",
-    token    = local.k3s_token
-  })
-  filename = "${path.module}/kubeconfig"
-}
-
-# module "jenkins" {
-#   source               = "./modules/jenkins"
-#   master_private_ip    = module.ec2.master_private_ip
-#   jenkins_admin_password = local.jenkins_admin_password
-
-#   # depends_on = [module.ec2]
+# resource "local_file" "kubeconfig" {
+#   content  = templatefile("${path.module}/templates/kubeconfig.tpl", {
+#     server   = "${module.ec2.master_private_ip}",
+#     token    = local.k3s_token
+#   })
+#   filename = "${path.module}/kubeconfig"
 # }

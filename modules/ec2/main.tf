@@ -11,6 +11,19 @@ resource "aws_instance" "master" {
   tags = {
     Name = "k3s-master"
   }
+
+  root_block_device {
+    volume_size           = 20
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
+
+  ebs_block_device {
+    device_name           = "/dev/sdb"
+    volume_size           = 50
+    volume_type           = "gp2"
+    delete_on_termination = true
+  }
 }
 
 resource "aws_launch_template" "k3s_worker" {
@@ -26,8 +39,11 @@ resource "aws_launch_template" "k3s_worker" {
     device_name = "/dev/xvda"
     ebs {
       volume_size = 20
+      volume_type           = "gp2"
     }
   }
+
+  depends_on = [aws_instance.master]
 }
 
 resource "aws_autoscaling_group" "k3s_workers" {

@@ -48,7 +48,7 @@ variable "iam_instance_profile" {
   type        = string
 }
 
-variable "k3s_token" {
-  description = "K3s token for joining the cluster"
-  type        = string
-}
+# variable "k3s_token" {
+#   description = "K3s token for joining the cluster"
+#   type        = string
+# }

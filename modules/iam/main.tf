@@ -50,6 +50,8 @@ resource "aws_iam_policy" "ec2_access_policy" {
       {
         Effect: "Allow",
         Action: [
+          "secretsmanager:CreateSecret",
+          "secretsmanager:PutSecretValue",
           "secretsmanager:GetSecretValue",
           "secretsmanager:DescribeSecret"
         ],
