@@ -43,6 +43,10 @@ resource "aws_launch_template" "k3s_worker" {
     }
   }
 
+  iam_instance_profile {
+    name = var.iam_instance_profile
+  }
+
   depends_on = [aws_instance.master]
 }
 
