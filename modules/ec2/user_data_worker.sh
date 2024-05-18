@@ -20,8 +20,8 @@ chown ubuntu:ubuntu /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
 # Get K3S master datas
 SECRET_NAME_K3S="k3s-secrets"
 SECRETS_K3S_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_K3S --query 'SecretString' --output text)
-K3S_TOKEN=$(echo $SECRETS | jq -r '.k3s_token')
-K3S_URL=$(echo $SECRETS | jq -r '.k3s_url')
+K3S_TOKEN=$(echo $SECRETS_K3S_VALUE | jq -r '.k3s_token')
+K3S_URL=$(echo $SECRETS_K3S_VALUE | jq -r '.k3s_url')
 
 # Install K3s
 curl -sfL https://get.k3s.io | K3S_URL=$K3S_URL K3S_TOKEN=$K3S_TOKEN sh -
