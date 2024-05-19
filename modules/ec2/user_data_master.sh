@@ -30,7 +30,10 @@ SECRET_NAME_K3S="k3s-secrets"
 SERVER_URL=$(hostname -I | awk '{print $1}')
 K3S_URL="https://${SERVER_URL}:6443"
 
+# Get Kubeconfig
+KUBECONFIG=$(cat /etc/rancher/k3s/k3s.yaml)
+
 # Save master datas to AWS Secrets Manager
-aws secretsmanager update-secret --name $SECRET_NAME_K3S --secret-string "{\"k3s_token\":\"$TOKEN\", \"k3s_url\":\"$K3S_URL\"}"
+aws secretsmanager update-secret --name $SECRET_NAME_K3S --secret-string "{\"k3s_token\":\"$TOKEN\", \"k3s_url\":\"$K3S_URL\", \"kubeconfig\":\"$KUBECONFIG\"}"
 
 sleep 60

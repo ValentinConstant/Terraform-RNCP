@@ -65,4 +65,6 @@ resource "aws_autoscaling_group" "k3s_workers" {
     value               = "k3s-worker"
     propagate_at_launch = true
   }
+
+  depends_on = [aws_instance.master]
 }
