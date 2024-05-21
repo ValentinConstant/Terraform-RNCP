@@ -15,7 +15,7 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 # data "aws_secretsmanager_secret_version" "k3s_token" {
-#   secret_id = "k3s/token"
+#   secret_id = "k3s/master_token"
 # }
 
 # locals {
@@ -72,8 +72,6 @@ module "ec2" {
   min_size            = var.min_size
   security_group_id   = module.security_groups.ec2_sg_id
   iam_instance_profile = module.iam.ec2_instance_profile_name
-  
-  # k3s_token           = local.k3s_token
 }
 
 module "alb" {

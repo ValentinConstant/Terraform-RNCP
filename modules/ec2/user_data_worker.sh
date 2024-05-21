@@ -9,22 +9,12 @@ curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip
 unzip awscliv2.zip
 sudo ./aws/install
 
-# Get SSH key
-SECRET_NAME_SSH="ssh-key"
-SECRET_SSH_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_SSH --query 'SecretString' --output text)
-
-echo "$SECRET_SSH_VALUE" > /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
-chmod 600 /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
-chown ubuntu:ubuntu /home/ubuntu/.ssh/AWS-RNCP-Infra.pem
-
-sudo systemctl stop k3s.service
-
 # Get K3S master datas
 SECRET_NAME_K3S="k3s-secrets"
 SECRETS_K3S_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_K3S --query 'SecretString' --output text)
 K3S_TOKEN=$(echo $SECRETS_K3S_VALUE | jq -r '.k3s_token')
 K3S_URL=$(echo $SECRETS_K3S_VALUE | jq -r '.k3s_url')
-KUBECONFIG=$(echo $SECRETS_K3S_VALUE | jq -r '.kubeconfig')
+# KUBECONFIG=$(echo $SECRETS_K3S_VALUE | jq -r '.kubeconfig')
 
 # Install K3s
 curl -sfL https://get.k3s.io | K3S_URL=$K3S_URL K3S_TOKEN=$K3S_TOKEN sh -
@@ -32,10 +22,9 @@ curl -sfL https://get.k3s.io | K3S_URL=$K3S_URL K3S_TOKEN=$K3S_TOKEN sh -
 # Fix k3s rights
 sudo chmod 644 /etc/rancher/k3s/k3s.yaml
 
-# Create kubeconfig
-mkdir ~/.kube
-echo "$KUBECONFIG" > ~/.kube/config
-chmod 600 ~/.kube/config
+# Get kubeconfig
+# mkdir ~/.kube
+# echo "$KUBECONFIG" > ~/.kube/config
 
 # Installer Helm seulement s'il n'est pas déjà installé
 if ! command -v helm &> /dev/null; then
