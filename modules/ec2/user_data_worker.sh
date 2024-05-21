@@ -10,11 +10,11 @@ unzip awscliv2.zip
 sudo ./aws/install
 
 # Get K3S master datas
-SECRET_NAME_K3S="k3s-secrets"
+SECRET_NAME_K3S="k3s-secrets2"
 SECRETS_K3S_VALUE=$(aws secretsmanager get-secret-value --secret-id $SECRET_NAME_K3S --query 'SecretString' --output text)
 K3S_TOKEN=$(echo $SECRETS_K3S_VALUE | jq -r '.k3s_token')
 K3S_URL=$(echo $SECRETS_K3S_VALUE | jq -r '.k3s_url')
-# KUBECONFIG=$(echo $SECRETS_K3S_VALUE | jq -r '.kubeconfig')
+KUBECONFIG=$(echo $SECRETS_K3S_VALUE | jq -r '.kubeconfig')
 
 # Install K3s
 curl -sfL https://get.k3s.io | K3S_URL=$K3S_URL K3S_TOKEN=$K3S_TOKEN sh -
@@ -23,8 +23,8 @@ curl -sfL https://get.k3s.io | K3S_URL=$K3S_URL K3S_TOKEN=$K3S_TOKEN sh -
 sudo chmod 644 /etc/rancher/k3s/k3s.yaml
 
 # Get kubeconfig
-# mkdir ~/.kube
-# echo "$KUBECONFIG" > ~/.kube/config
+mkdir ~/.kube
+sudo cp /etc/rancher/k3s/k3s.yaml > ~/.kube/config
 
 # Installer Helm seulement s'il n'est pas déjà installé
 if ! command -v helm &> /dev/null; then

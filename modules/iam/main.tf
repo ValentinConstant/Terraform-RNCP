@@ -47,28 +47,17 @@ resource "aws_iam_policy" "ec2_access_policy" {
           "arn:aws:s3:::${var.etcd_bucket}/*"
         ]
       },
-      # {
-      #   Effect: "Allow",
-      #   Action: [
-      #     "secretsmanager:CreateSecret",
-      #     "secretsmanager:PutSecretValue",
-      #     "secretsmanager:GetSecretValue",
-      #     "secretsmanager:DescribeSecret",
-      #     "secretsmanager:UpdateSecret"
-      #   ],
-      #   Resource: "*"
-      # }
       {
-        Effect = "Allow",
-        Action = [
-          "ssm:GetParameter",
-          "ssm:GetParameters",
+        Effect: "Allow",
+        Action: [
+          "secretsmanager:CreateSecret",
+          "secretsmanager:PutSecretValue",
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:UpdateSecret"
         ],
-        Resource = [
-          "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/k3s/master/ip",
-          "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/k3s/master/token",
-        ],
-      },
+        Resource: "*"
+      }
     ]
   })
 }
