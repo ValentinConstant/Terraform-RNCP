@@ -25,19 +25,4 @@ resource "aws_s3_bucket" "elasticsearch_backup" {
   }
 }
 
-resource "aws_s3_bucket_acl" "etcd_backup" {
-  bucket = aws_s3_bucket.etcd_backup.bucket
-  acl    = "private"
-}
-
-resource "aws_s3_bucket_acl" "postgres_backup" {
-  bucket = aws_s3_bucket.postgres_backup.bucket
-  acl    = "private"
-}
-
-resource "aws_s3_bucket_acl" "elasticsearch_backup" {
-  bucket = aws_s3_bucket.elasticsearch_backup.bucket
-  acl    = "private"
-}
-
 data "aws_caller_identity" "current" {}

@@ -1,17 +1,17 @@
-output "kubeconfig" {
-  description = "Kubeconfig file"
-  value       = module.eks.kubeconfig
-}
+# output "kubeconfig" {
+#   description = "Kubeconfig file"
+#   value       = module.eks.kubeconfig
+# }
 
 output "eks_cluster_name" {
   description = "EKS cluster name"
   value       = module.eks.cluster_id
 }
 
-output "traefik_load_balancer_dns" {
-  description = "The DNS name of the Traefik load balancer"
-  value       = module.traefik.traefik_load_balancer_dns
-}
+# output "traefik_load_balancer_dns" {
+#   description = "The DNS name of the Traefik load balancer"
+#   value       = module.traefik.traefik_load_balancer_dns
+# }
 
 output "etcd_backup_bucket" {
   description = "S3 bucket for etcd backups"
