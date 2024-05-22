@@ -1,0 +1,115 @@
+name: Terraform CI/CD
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  terraform:
+    name: 'Terraform Plan and Apply'
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: eu-west-3
+      CLUSTER_NAME: kbnhvn-cluster
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+        run: terraform apply -input=false tfplan -auto-approve
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'v1.21.0'
+
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --region ${{ env.AWS_REGION }} --name ${{ env.CLUSTER_NAME }}
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+
+      - name: Deploy Jenkins via Helm
+        run: |
+          helm repo add jenkins https://charts.jenkins.io
+          helm repo update
+          helm upgrade --install jenkins jenkins/jenkins \
+            --set controller.adminPassword=$JENKINS_ADMIN_PASSWORD \
+            --set persistence.enabled=true \
+            --set persistence.storageClass=gp2 \
+            --set persistence.size=10Gi \
+            --set controller.serviceType=LoadBalancer
+
+      - name: Apply Jenkins Agent ConfigMap
+        run: |
+          kubectl apply -f jenkins/jenkins-agent-config.yaml
+
+      - name: Apply Jenkins RBAC
+        run: |
+          kubectl apply -f jenkins/jenkins-rbac.yaml
+
+      - name: Get Jenkins LoadBalancer IP
+        id: get_jenkins_ip
+        run: |
+          export SERVICE_IP=$(kubectl get svc --namespace default jenkins -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "JENKINS_URL=http://$SERVICE_IP:8080" >> $GITHUB_ENV
+
+      - name: Output Jenkins URL
+        run: echo "Jenkins is available at ${{ env.JENKINS_URL }}"
+
+      - name: Generate Kubeconfig for Jenkins
+        run: |
+          TOKEN=$(kubectl -n default get secret $(kubectl -n default get sa/jenkins -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode)
+          CLUSTER_NAME=$(kubectl config view --minify -o jsonpath='{.clusters[0].name}')
+          CLUSTER_ENDPOINT=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+          CLUSTER_CA=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.certificate-authority-data}')
+          cat <<EOF > kubeconfig-jenkins
+          apiVersion: v1
+          kind: Config
+          clusters:
+          - cluster:
+              certificate-authority-data: ${CLUSTER_CA}
+              server: ${CLUSTER_ENDPOINT}
+            name: ${CLUSTER_NAME}
+          contexts:
+          - context:
+              cluster: ${CLUSTER_NAME}
+              user: jenkins
+            name: jenkins-context
+          current-context: jenkins-context
+          users:
+          - name: jenkins
+            user:
+              token: ${TOKEN}
+          EOF
+
+      - name: Upload Kubeconfig to Jenkins
+        uses: actions/upload-artifact@v2
+        with:
+          name: kubeconfig-jenkins
+          path: kubeconfig-jenkins
