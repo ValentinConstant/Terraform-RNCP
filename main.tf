@@ -2,36 +2,6 @@ provider "aws" {
   region = var.region
 }
 
-data "aws_secretsmanager_secret_version" "jenkins_admin_password" {
-  secret_id = "jenkins/admin_password"
-}
-
-locals {
-  jenkins_admin_password = jsondecode(data.aws_secretsmanager_secret_version.jenkins_admin_password.secret_string).password
-}
-
-data "aws_eks_cluster" "eks" {
-  name = module.eks.cluster_id
-}
-
-data "aws_eks_cluster_auth" "eks" {
-  name = module.eks.cluster_id
-}
-
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.eks.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
-  token                  = data.aws_eks_cluster_auth.eks.token
-}
-
-provider "helm" {
-  kubernetes {
-    host                   = data.aws_eks_cluster.eks.endpoint
-    cluster_ca_certificate = base64decode(data.aws_eks_cluster.eks.certificate_authority[0].data)
-    token                  = data.aws_eks_cluster_auth.eks.token
-  }
-}
-
 module "vpc" {
   source  = "./modules/vpc"
   vpc_name = var.vpc_name
@@ -39,7 +9,7 @@ module "vpc" {
   azs             = var.availability_zones
   private_subnets = var.private_subnets
   public_subnets  = var.public_subnets
-  environment = var.environment
+  cluster_name    = var.cluster_name
 
 }
 
@@ -95,19 +65,16 @@ module "alb" {
 
 }
 
-module "traefik" {
-  source   = "./modules/traefik"
-  cert_arn = data.aws_acm_certificate.cert.arn
-}
-
-module "jenkins" {
-  source               = "./modules/jenkins"
-  jenkins_admin_password = local.jenkins_admin_password
-}
-
 data "aws_acm_certificate" "cert" {
   domain       = var.domain_name
   types       = ["IMPORTED"]
   most_recent = true
 }
 
+terraform {
+  backend "s3" {
+    bucket = "terraform-state-bucket-kbnhvn"
+    key    = "primary/terraform.tfstate"
+    region = "eu-west-3"
+  }
+}

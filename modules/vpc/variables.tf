@@ -23,7 +23,7 @@ variable "azs" {
   type        = list(string)
 }
 
-variable "environment" {
-  description = "The environment for tagging"
+variable "cluster_name" {
+  description = "The name of the cluster"
   type        = string
 }
