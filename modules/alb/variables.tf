@@ -1,24 +1,24 @@
 variable "vpc_id" {
-  description = "The ID of the VPC"
+  description = "The VPC ID"
   type        = string
 }
 
-variable "subnet_ids" {
-  description = "The IDs of the subnets to attach to the ALB"
+variable "subnets" {
+  description = "List of subnets for the ALB"
   type        = list(string)
 }
 
 variable "security_group_id" {
-  description = "The security group ID to attach to the ALB"
+  description = "The security group ID for the ALB"
   type        = string
 }
 
-variable "master_node" {
-  description = "Id of master node"
+variable "cert_arn" {
+  description = "The ARN of the ACM certificate"
   type        = string
 }
 
-variable "workers_asg" {
-  description = "id of workers nodes ASG"
+variable "environment" {
+  description = "The environment"
   type        = string
 }

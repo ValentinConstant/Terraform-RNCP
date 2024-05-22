@@ -1,14 +1,34 @@
-output "bastion_public_ip" {
-  description = "Public IP address of the bastion host"
-  value       = module.bastion.bastion_public_ip
+output "kubeconfig" {
+  description = "Kubeconfig file"
+  value       = module.eks.kubeconfig
 }
 
-output "master_private_ip" {
-  description = "Private IP address of the master node"
-  value       = module.ec2.master_private_ip
+output "eks_cluster_name" {
+  description = "EKS cluster name"
+  value       = module.eks.cluster_id
 }
 
-output "bastion_eip" {
-  description = "The Elastic IP address of the bastion host"
-  value       = module.bastion.bastion_eip
+output "traefik_load_balancer_dns" {
+  description = "The DNS name of the Traefik load balancer"
+  value       = module.traefik.traefik_load_balancer_dns
+}
+
+output "etcd_backup_bucket" {
+  description = "S3 bucket for etcd backups"
+  value       = module.s3.etcd_backup_bucket
+}
+
+output "postgres_backup_bucket" {
+  description = "S3 bucket for PostgreSQL backups"
+  value       = module.s3.postgres_backup_bucket
+}
+
+output "elasticsearch_backup_bucket" {
+  description = "S3 bucket for Elasticsearch backups"
+  value       = module.s3.elasticsearch_backup_bucket
+}
+
+output "jenkins_url" {
+  description = "URL for Jenkins"
+  value       = module.jenkins.jenkins_url
 }

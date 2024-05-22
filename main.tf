@@ -2,91 +2,128 @@ provider "aws" {
   region = var.region
 }
 
-# provider "kubernetes" {
-#   config_path = "${path.module}/kubeconfig"
-# }
-
-# provider "helm" {
-#   kubernetes {
-#     config_path = "${path.module}/kubeconfig"
-#   }
-# }
-
-data "aws_caller_identity" "current" {}
-
-# data "aws_secretsmanager_secret_version" "k3s_token" {
-#   secret_id = "k3s/master_token"
-# }
-
-# locals {
-#   k3s_token = jsondecode(data.aws_secretsmanager_secret_version.k3s_token.secret_string).token
-# }
-
-module "vpc" {
-  source         = "./modules/vpc"
-  vpc_cidr       = var.vpc_cidr
-  public_subnets = var.public_subnets
-  private_subnets = var.private_subnets
-  azs            = var.azs
+provider "kubernetes" {
+  host                   = aws_eks_cluster.eks.endpoint
+  cluster_ca_certificate = base64decode(aws_eks_cluster.eks.certificate_authority[0].data)
+  token                  = data.aws_eks_cluster_auth.eks.token
 }
 
-module "iam" {
-  source = "./modules/iam"
-  region = var.region
-  elasticsearch_bucket = var.elasticsearch_bucket
-  postgres_bucket = var.postgres_bucket
-  etcd_bucket = var.etcd_bucket
+provider "helm" {
+  kubernetes {
+    host                   = aws_eks_cluster.eks.endpoint
+    cluster_ca_certificate = base64decode(aws_eks_cluster.eks.certificate_authority[0].data)
+    token                  = data.aws_eks_cluster_auth.eks.token
+  }
+}
+
+data "aws_eks_cluster_auth" "eks" {
+  name = aws_eks_cluster.eks.name
+}
+
+module "vpc" {
+  source  = "./modules/vpc"
+  # version = "3.10.0"
+
+  name = var.vpc_name
+  cidr = var.vpc_cidr
+
+  azs             = var.availability_zones
+  private_subnets = var.private_subnets
+  public_subnets  = var.public_subnets
+
+  tags = {
+    Name = var.vpc_name
+  }
 }
 
 module "security_groups" {
   source = "./modules/security_groups"
   vpc_id = module.vpc.vpc_id
+  vpc_cidr = var.vpc_cidr
+  cluster_name = var.cluster_name
+}
+
+module "iam" {
+  source = "./modules/iam"
+  s3_buckets = [
+    module.s3.etcd_backup_bucket,
+    module.s3.postgres_backup_bucket,
+    module.s3.elasticsearch_backup_bucket
+  ]
 }
 
 module "s3" {
-  source = "./modules/s3"
-  elasticsearch_bucket = var.elasticsearch_bucket
-  postgres_bucket = var.postgres_bucket
-  etcd_bucket = var.etcd_bucket
+  source      = "./modules/s3"
+  prefix      = var.prefix
+  environment = var.environment
 }
 
-module "bastion" {
-  source         = "./modules/bastion"
-  ami            = var.ami
-  instance_type  = var.bastion_instance_type
-  key_name       = var.key_name
-  subnet_id      = element(module.vpc.public_subnet_ids, 0)
-  security_group_id = module.security_groups.bastion_sg_id
-  iam_instance_profile = module.iam.bastion_profile_name
-}
+module "eks" {
+  source          = "./modules/eks"
+  cluster_name    = var.cluster_name
+  cluster_version = "1.21"
+  subnets         = module.vpc.private_subnets
+  vpc_id          = module.vpc.vpc_id
+  desired_capacity = var.desired_capacity
+  max_capacity     = var.max_capacity
+  min_capacity     = var.min_capacity
+  instance_type    = var.instance_type
+  key_name         = var.key_name
+  node_role_arn    = module.iam.node_role_arn
 
-module "ec2" {
-  source              = "./modules/ec2"
-  ami                 = var.ami
-  instance_type       = var.instance_type
-  key_name            = var.key_name
-  master_subnet_id    = element(module.vpc.private_subnet_ids, 0)
-  worker_subnet_ids   = module.vpc.private_subnet_ids
-  desired_capacity    = var.desired_capacity
-  max_size            = var.max_size
-  min_size            = var.min_size
-  security_group_id   = module.security_groups.ec2_sg_id
-  iam_instance_profile = module.iam.ec2_instance_profile_name
+  tags = {
+    Environment = "dev"
+    Name        = var.cluster_name
+  }
 }
 
 module "alb" {
-  source             = "./modules/alb"
-  vpc_id             = module.vpc.vpc_id
-  subnet_ids         = module.vpc.private_subnet_ids
-  security_group_id  = module.security_groups.lb_sg_id
-  master_node        = module.ec2.master_node
-  workers_asg        = module.ec2.workers_asg
+  source   = "./modules/alb"
+  vpc_id   = module.vpc.vpc_id
+  subnets  = module.vpc.public_subnets
+  cert_arn = aws_acm_certificate.cert.arn
+  environment = var.environment
+  security_group_id = 
 }
 
-# resource "local_file" "kubeconfig" {
-#   content  = templatefile("${path.module}/templates/kubeconfig.tpl", {
-#     server   = "${module.ec2.master_private_ip}",
-#     token    = local.k3s_token
-#   })
-#   filename = "${path.module}/kubeconfig"
-# }
+module "traefik" {
+  source   = "./modules/traefik"
+  cert_arn = aws_acm_certificate.cert.arn
+}
+
+module "jenkins" {
+  source               = "./modules/jenkins"
+  jenkins_admin_password = var.jenkins_admin_password
+}
+
+resource "aws_acm_certificate" "cert" {
+  domain_name       = var.domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+
+  depends_on = [aws_route53_record.cert_validation]
+}
+
+resource "aws_route53_record" "cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name    = dvo.resource_record_name
+      type    = dvo.resource_record_type
+      record  = dvo.resource_record_value
+    }
+  }
+
+  zone_id = var.route53_zone_id
+  name    = each.value.name
+  type    = each.value.type
+  records = [each.value.record]
+  ttl     = 60
+}

@@ -1,14 +1,9 @@
-variable "elasticsearch_bucket" {
-  description = "Name of the S3 bucket for Elasticsearch backups"
+variable "prefix" {
+  description = "Prefix for the S3 buckets"
   type        = string
 }
 
-variable "postgres_bucket" {
-  description = "Name of the S3 bucket for PostgreSQL backups"
-  type        = string
-}
-
-variable "etcd_bucket" {
-  description = "Name of the S3 bucket for ETCD backups"
+variable "environment" {
+  description = "Environment for tagging purposes"
   type        = string
 }

@@ -1,9 +1,9 @@
-output "ec2_instance_profile_name" {
-  description = "Name of the EC2 instance profile"
-  value       = aws_iam_instance_profile.ec2_instance_profile.name
+output "eks_role_arn" {
+  description = "The ARN of the EKS cluster role"
+  value       = aws_iam_role.eks.arn
 }
 
-output "bastion_profile_name" {
-  description = "Name of the bastion instance profile"
-  value       = aws_iam_instance_profile.bastion_profile.name
+output "node_role_arn" {
+  description = "The ARN of the EKS node role"
+  value       = aws_iam_role.node.arn
 }
