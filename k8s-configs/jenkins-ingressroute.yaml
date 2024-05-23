@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: jenkins-ingressroute
+  namespace: default
+spec:
+  entryPoints:
+    - web
+    - websecure
+  routes:
+  - match: Host("jenkins.kbnhvn-project.eu")
+    kind: Rule
+    services:
+    - name: jenkins
+      port: 8080
+    middlewares:
+    - name: secure-headers
+  tls:
+    certResolver: default

@@ -38,16 +38,6 @@ variable "cluster_name" {
   type        = string
 }
 
-variable "domain_name" {
-  description = "The domain name for the ACM certificate"
-  type        = string
-}
-
-variable "route53_zone_id" {
-  description = "The Route53 Hosted Zone ID for the domain"
-  type        = string
-}
-
 variable "prefix" {
   description = "Prefix for the S3 buckets"
   type        = string

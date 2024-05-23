@@ -16,6 +16,12 @@ jobs:
     env:
       AWS_REGION: eu-west-3
       CLUSTER_NAME: kbnhvn-cluster
+      JENKINS_ADMIN_PASSWORD: ${{ secrets.JENKINS_ADMIN_PASSWORD }}
+      CLOUDNS_API_URL: "https://api.cloudns.net/dns"
+      CLOUDNS_AUTH_ID: ${{ secrets.CLOUDNS_AUTH_ID }}
+      CLOUDNS_AUTH_PASSWORD: ${{ secrets.CLOUDNS_AUTH_PASSWORD }}
+      DOMAIN_NAME: "kbnhvn-project.eu"
+      SUBDOMAIN: "jenkins"
 
     steps:
       - name: Checkout code
@@ -41,6 +47,12 @@ jobs:
         if: github.ref == 'refs/heads/eks' && github.event_name == 'push'
         run: terraform apply -input=false -auto-approve tfplan
 
+      - name: Extract public subnets from Terraform outputs
+        id: extract_subnets
+        run: |
+          PUBLIC_SUBNETS=$(terraform output -json public_subnet_ids | jq -r '.[]' | paste -sd "," -)
+          echo "PUBLIC_SUBNETS=$PUBLIC_SUBNETS" >> $GITHUB_ENV
+
       - name: Install kubectl
         uses: azure/setup-kubectl@v1
         with:
@@ -54,33 +66,58 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
+      - name: Deploy Traefik Ingress Controller with CRDs
+        run: |
+          helm repo add traefik https://helm.traefik.io/traefik
+          helm repo update
+          helm install traefik traefik/traefik --namespace kube-system --set service.type=LoadBalancer --set crds.enabled=true --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-subnets"="$PUBLIC_SUBNETS"
+
       - name: Deploy Jenkins via Helm
         run: |
           helm repo add jenkins https://charts.jenkins.io
           helm repo update
           helm upgrade --install jenkins jenkins/jenkins \
-            --set controller.adminPassword=$JENKINS_ADMIN_PASSWORD \
+            --set controller.adminPassword=${{ env.JENKINS_ADMIN_PASSWORD }} \
             --set persistence.enabled=true \
             --set persistence.storageClass=gp2 \
             --set persistence.size=10Gi \
             --set controller.serviceType=LoadBalancer
 
+      - name: Apply Jenkins Middleware
+        run: |
+          kubectl apply -f k8s-configs/secure-headers.yaml
+
+      - name: Apply Jenkins IngressRoute
+        run: |
+          kubectl apply -f k8s-configs/jenkins-ingressroute.yaml
+
       - name: Apply Jenkins Agent ConfigMap
         run: |
-          kubectl apply -f jenkins/jenkins-agent-config.yaml
+          kubectl apply -f k8s-configs/jenkins-agent-config.yaml
+
+      - name: Get Jenkins Ingress IP
+        id: get_jenkins_ip
+        run: |
+          export SERVICE_IP=$(kubectl get svc traefik --namespace kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          echo "JENKINS_URL=http://$SERVICE_IP" >> $GITHUB_ENV
+
+      - name: Update ClouDNS A Record
+        run: |
+          curl -X POST "${{ env.CLOUDNS_API_URL }}/add-record.json" \
+            -d "auth-id=${{ env.CLOUDNS_AUTH_ID }}" \
+            -d "auth-password=${{ env.CLOUDNS_AUTH_PASSWORD }}" \
+            -d "domain-name=${{ env.DOMAIN_NAME }}" \
+            -d "record-type=A" \
+            -d "host=${{ env.SUBDOMAIN }}" \
+            -d "record=${{ env.SERVICE_IP }}" \
+            -d "ttl=60"
+
+      - name: Output Jenkins URL
+        run: echo "Jenkins is available at http://${{ env.SUBDOMAIN }}.${{ env.DOMAIN_NAME }}"
 
       - name: Apply Jenkins RBAC
         run: |
-          kubectl apply -f jenkins/jenkins-rbac.yaml
-
-      - name: Get Jenkins LoadBalancer IP
-        id: get_jenkins_ip
-        run: |
-          export SERVICE_IP=$(kubectl get svc --namespace default jenkins -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-          echo "JENKINS_URL=http://$SERVICE_IP:8080" >> $GITHUB_ENV
-
-      - name: Output Jenkins URL
-        run: echo "Jenkins is available at ${{ env.JENKINS_URL }}"
+          kubectl apply -f k8s-configs/jenkins-rbac.yaml
 
       - name: Generate Kubeconfig for Jenkins
         run: |

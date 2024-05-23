@@ -18,7 +18,6 @@ module "security_groups" {
   vpc_id = module.vpc.vpc_id
   vpc_cidr = var.vpc_cidr
   cluster_name = var.cluster_name
-  environment = var.environment
 }
 
 module "iam" {
@@ -53,22 +52,6 @@ module "eks" {
     Environment = "dev"
     Name        = var.cluster_name
   }
-}
-
-module "alb" {
-  source   = "./modules/alb"
-  vpc_id   = module.vpc.vpc_id
-  subnets  = module.vpc.public_subnet_ids
-  cert_arn = data.aws_acm_certificate.cert.arn
-  environment = var.environment
-  security_group_id = module.security_groups.alb_sg_id
-
-}
-
-data "aws_acm_certificate" "cert" {
-  domain       = var.domain_name
-  types       = ["IMPORTED"]
-  most_recent = true
 }
 
 terraform {
