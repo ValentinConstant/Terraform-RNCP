@@ -76,7 +76,7 @@ jobs:
         run: |
           helm repo add traefik https://helm.traefik.io/traefik
           helm repo update
-          helm install traefik traefik/traefik --namespace kube-system \
+          helm upgrade --install traefik traefik/traefik --namespace kube-system \
             --set service.type=LoadBalancer \
             --set crds.enabled=true \
             --set deployment.podAnnotations."iam\.amazonaws\.com/role"='"${{ env.IAM_ROLE_ARN }}"' \
