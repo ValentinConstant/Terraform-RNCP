@@ -86,6 +86,7 @@ jobs:
 
       - name: test
         run: |
+          kubectl create namespace traefik
           kubectl apply -f k8s-configs/tests/middleware.yaml
           kubectl apply -f k8s-configs/tests/ingress-route.yaml
           kubectl apply -f k8s-configs/tests/secret.yaml
