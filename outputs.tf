@@ -28,7 +28,7 @@ output "elasticsearch_backup_bucket" {
 
 output "public_subnets" {
   description = "The public subnets"
-  value       = var.public_subnets
+  value       = module.vpc.public_subnet_ids
 }
 
 output "traefik_role_arn" {

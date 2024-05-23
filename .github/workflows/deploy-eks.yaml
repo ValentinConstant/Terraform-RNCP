@@ -47,6 +47,9 @@ jobs:
         if: github.ref == 'refs/heads/eks' && github.event_name == 'push'
         run: terraform apply -input=false -auto-approve tfplan
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Get Terraform Outputs
         id: tf_outputs
         run: |
