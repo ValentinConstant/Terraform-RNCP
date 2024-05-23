@@ -85,7 +85,7 @@ jobs:
             --set service.type=LoadBalancer \
             --set crds.enabled=true \
             --set dashboard.enabled=true \
-            --set providers.kubernetescrd \
+            --set providers.kubernetescrd.enabled=true \
             --set deployment.podAnnotations."iam\.amazonaws\.com/role"='"${{ env.IAM_ROLE_ARN }}"' \
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"='"alb"' \
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-subnets"='"${{ env.PUBLIC_SUBNETS }}"' \
