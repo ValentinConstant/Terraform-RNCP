@@ -12,3 +12,4 @@ desired_capacity    = 2
 max_capacity        = 3
 min_capacity        = 1
 instance_type       = "t3.medium"
+domain_name         = "kbnhvn-project.eu"

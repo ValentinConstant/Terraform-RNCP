@@ -26,7 +26,16 @@ output "elasticsearch_backup_bucket" {
   value       = module.s3.elasticsearch_backup_bucket
 }
 
-output "public_subnet_ids" {
+output "public_subnets" {
   description = "The IDs of the public subnets"
   value       = module.vpc.public_subnet_ids
+}
+
+output "traefik_role_arn" {
+  description = "The ARN of the Traefik role"
+  value = module.iam.traefik_role_arn
+}
+
+output "ssl_cert_arn" {
+  value = data.aws_acm_certificate.cert.arn
 }

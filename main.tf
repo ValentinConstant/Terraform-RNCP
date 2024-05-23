@@ -2,6 +2,12 @@ provider "aws" {
   region = var.region
 }
 
+data "aws_acm_certificate" "cert" {
+  domain       = var.domain_name
+  types        = ["AMAZON_ISSUED"]
+  most_recent  = true
+}
+
 module "vpc" {
   source  = "./modules/vpc"
   vpc_name = var.vpc_name

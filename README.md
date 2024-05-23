@@ -62,3 +62,10 @@ Stocke les sauvegardes des bases de données et des configurations critiques.
 Serveur CI/CD utilisé pour automatiser les tâches de déploiement et de test de l'application
 ### Localisation: 
 Déployé sur le cluster EKS.
+
+## ACM (AWS Certificate Manager)
+
+### Utilité: 
+Gère les certificats SSL/TLS pour sécuriser les communications entre les clients et les services.
+### Composants:
+- ACM Certificate: Certificat SSL

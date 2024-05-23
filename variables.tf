@@ -68,3 +68,8 @@ variable "instance_type" {
   type        = string
 }
 
+variable "domain_name" {
+  description = "Domain name from cloudns"
+  type        = string
+}
+

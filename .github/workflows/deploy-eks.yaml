@@ -47,11 +47,12 @@ jobs:
         if: github.ref == 'refs/heads/eks' && github.event_name == 'push'
         run: terraform apply -input=false -auto-approve tfplan
 
-      - name: Extract public subnets from Terraform outputs
-        id: extract_subnets
+      - name: Get Terraform Outputs
+        id: tf_outputs
         run: |
-          PUBLIC_SUBNETS=$(terraform output -json public_subnet_ids | jq -r '.[]' | paste -sd "," -)
-          echo "PUBLIC_SUBNETS=$PUBLIC_SUBNETS" >> $GITHUB_ENV
+          echo "PUBLIC_SUBNETS=$(terraform output -json public_subnets | jq -r '. | join(",")')" >> $GITHUB_ENV
+          echo "IAM_ROLE_ARN=$(terraform output -raw traefik_role_arn)" >> $GITHUB_ENV
+          echo "SSL_CERT_ARN=$(terraform output -raw ssl_cert_arn)" >> $GITHUB_ENV
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v1
@@ -70,7 +71,15 @@ jobs:
         run: |
           helm repo add traefik https://helm.traefik.io/traefik
           helm repo update
-          helm install traefik traefik/traefik --namespace kube-system --set service.type=LoadBalancer --set crds.enabled=true --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-subnets"="$PUBLIC_SUBNETS"
+          helm install traefik traefik/traefik --namespace kube-system \
+            --set service.type=LoadBalancer \
+            --set crds.enabled=true \
+            --set deployment.podAnnotations."iam\.amazonaws\.com/role"=${{ env.IAM_ROLE_ARN }} \
+            --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-subnets"=${{ env.PUBLIC_SUBNETS }} \
+            --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-backend-protocol"=HTTP \
+            --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert"=${{ env.SSL_CERT_ARN }} \
+            --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-ports"=https \
+            --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-connection-idle-timeout"=3600
 
       - name: Deploy Jenkins via Helm
         run: |
