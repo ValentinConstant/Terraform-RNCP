@@ -1,5 +1,31 @@
 # Terraform-RNCP
 
+
+       +-------------------------------------------------------------+
+       |                       AWS Cloud                             |
+       |                                                             |
+       |  +-------------------------+       +---------------------+  |
+       |  |     Public Subnets      |       |    Private Subnets  |  |
+       |  |                         |       |                     |  |
+       |  | +---------------------+ |       | +-----------------+ |  |
+       |  | |      ALB / NLB      | |       | |     EKS Nodes   | |  |
+       |  | |    (Load Balancer)  | |       | |                 | |  |
+       |  | +---------------------+ |       | +-----------------+ |  |
+       |  |                         |       |                     |  |
+       |  | +---------------------+ |       | +-----------------+ |  |
+       |  | |     Traefik Ingress   |<----->| |   Jenkins Pod   | |  |
+       |  | +---------------------+ |       | |                 | |  |
+       |  |                         |       | +-----------------+ |  |
+       |  +-------------------------+       +---------------------+  |
+       |                                                             |
+       |  +----------------------------+    +---------------------+  |
+       |  |        IAM Roles           |    |      ACM Certs      |  |
+       |  |  - EKS Cluster Role        |    | - SSL Certificates  |  |
+       |  |  - Traefik Role            |    |                     |  |
+       |  +----------------------------+    +---------------------+  |
+       +-------------------------------------------------------------+
+
+
 ## VPC (Virtual Private Cloud)
 
 ### Utilité: 
@@ -38,6 +64,13 @@ Fournit un environnement Kubernetes managé pour déployer et gérer des applica
 - EKS Control Plane: Géré par AWS.
 - EKS Nodes: Instances EC2 dans les subnets privés.
 
+## ALB (Application Load Balancer) / NLB (Network Load Balancer)
+
+### Description : 
+- Load Balancers gérés par AWS pour répartir le trafic entrant vers les services Kubernetes.
+### Utilité : 
+- Répartit le trafic entrant vers les nœuds EKS via Traefik Ingress Controller.
+
 ## IAM Roles and Policies
 
 ### Utilité: 
@@ -46,6 +79,7 @@ Gère les permissions et les accès pour les différentes ressources AWS.
 - EKS Role: Permet aux nœuds EKS d'interagir avec d'autres services AWS.
 - KMS Policy: Autorise la création et la gestion de clés KMS.
 - ACM Policy: Autorise l'accès aux certificats ACM.
+- Traefik Role : Permissions pour Traefik pour gérer les ressources AWS nécessaires (comme les Load Balancers).
 
 ## S3 Buckets
 
@@ -56,12 +90,19 @@ Stocke les sauvegardes des bases de données et des configurations critiques.
 - Postgres Backup Bucket
 - Elasticsearch Backup Bucket
 
-## Jenkins
+## Traefik Ingress Controller
 
-### Utilité: 
-Serveur CI/CD utilisé pour automatiser les tâches de déploiement et de test de l'application
-### Localisation: 
-Déployé sur le cluster EKS.
+### Description : 
+- Un contrôleur Ingress qui gère les routages d'entrée pour les services Kubernetes.
+### Utilité : 
+- Gère le routage du trafic vers les services au sein du cluster Kubernetes, en fournissant des fonctionnalités telles que le middleware, la gestion SSL, et  les règles de routage avancées.
+
+## Jenkins Pod
+
+### Description : 
+- Un conteneur Jenkins déployé sur le cluster EKS.
+### Utilité : 
+- Fournit des services CI/CD pour automatiser les processus de développement, de test et de déploiement des applications.
 
 ## ACM (AWS Certificate Manager)
 
