@@ -79,11 +79,11 @@ jobs:
           helm install traefik traefik/traefik --namespace kube-system \
             --set service.type=LoadBalancer \
             --set crds.enabled=true \
-            --set deployment.podAnnotations."iam\.amazonaws\.com/role"=${{ env.IAM_ROLE_ARN }} \
+            --set deployment.podAnnotations."iam\.amazonaws\.com/role"="${{ env.IAM_ROLE_ARN }}" \
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="alb" \
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-subnets"="subnet-0a1b284c3e1d38a8d\,subnet-08f2a223616795f49\,subnet-00b6b9183d64dae1d" \
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-backend-protocol"="HTTP" \
-            --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert"=${{ env.SSL_CERT_ARN }} \
+            --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert"="${{ env.SSL_CERT_ARN }}" \
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-ports"="https" \
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-connection-idle-timeout"="3600"
 
