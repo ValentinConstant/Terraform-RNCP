@@ -72,6 +72,10 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
+      - name: Install Traefik CRDs
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.5/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1alpha1.yml
+
       - name: Deploy Traefik Ingress Controller with CRDs
         run: |
           helm repo add traefik https://helm.traefik.io/traefik
