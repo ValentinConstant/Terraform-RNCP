@@ -23,13 +23,6 @@ Héberge des ressources internes non accessibles directement depuis l'Internet p
 - Subnet 1: 10.0.4.0/24
 - Subnet 2: 10.0.5.0/24
 
-## ALB (Application Load Balancer)
-
-### Utilité: 
-Distribue le trafic entrant aux services déployés sur les nœuds EKS.
-### Localisation: 
-Public Subnet 1.
-
 ## NAT Gateway
 
 ### Utilité: 
@@ -69,10 +62,3 @@ Stocke les sauvegardes des bases de données et des configurations critiques.
 Serveur CI/CD utilisé pour automatiser les tâches de déploiement et de test de l'application
 ### Localisation: 
 Déployé sur le cluster EKS.
-
-## ACM (AWS Certificate Manager)
-
-### Utilité: 
-Gère les certificats SSL/TLS pour sécuriser les communications entre les clients et les services.
-### Composants:
-- ACM Certificate: Certificat SSL pour sécuriser l'ALB.
