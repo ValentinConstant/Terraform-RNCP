@@ -83,6 +83,13 @@ jobs:
           helm repo update
           helm upgrade --install traefik traefik/traefik --namespace kube-system --values=k8s-configs/traefik-values.yaml
 
+
+      - name: test
+        run: |
+          kubectl apply -f k8s-configs/tests/middleware.yaml
+          kubectl apply -f k8s-configs/tests/ingress-route.yaml
+          kubectl apply -f k8s-configs/tests/secret.yaml
+
       - name: Deploy Jenkins via Helm
         run: |
           helm repo add jenkins https://charts.jenkins.io
