@@ -47,8 +47,11 @@ jobs:
         if: github.ref == 'refs/heads/eks-2' && github.event_name == 'push'
         run: terraform apply -input=false -auto-approve tfplan
 
-      - name: Install jq
-        run: sudo apt-get install -y jq
+      - name: Install jq and yq
+        run: |
+          sudo apt-get install -y jq
+          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
+          chmod +x /usr/bin/yq
 
       - name: Get Terraform Outputs
         id: tf_outputs
@@ -72,99 +75,98 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
+      - name: Install AWS Load Balancer Controller
+        run: |
+          helm repo add eks https://aws.github.io/eks-charts
+          helm repo update eks
+          helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
+          -n kube-system \
+          --set clusterName=kbnhvn-cluster \
+          --set serviceAccount.create=false \
+          --set serviceAccount.name=aws-load-balancer-controller
+
       - name: Install Traefik CRDs and RBAC
         run: |
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
 
-      - name: Deploy Traefik Ingress Controller with CRDs
+      - name: Deploy Traefik
         run: |
-          helm repo add traefik https://helm.traefik.io/traefik
+          kubectl apply -f k8s-configs/traefik/deployment.yaml
+          kubectl apply -f k8s-configs/traefik/service.yaml
+          kubectl apply -f k8s-configs/traefik/ingress.yaml
+          kubectl apply -f k8s-configs/traefik/ingressroute.yaml
+
+      - name: Deploy Jenkins via Helm
+        run: |
+          helm repo add jenkins https://charts.jenkins.io
           helm repo update
-          
-          helm upgrade --install traefik traefik/traefik --namespace traefik --values=k8s-configs/traefik-values.yaml
+          helm upgrade --install jenkins jenkins/jenkins \
+            --set controller.admin.password=${{ env.JENKINS_ADMIN_PASSWORD }} \
+            --set persistence.enabled=true \
+            --set persistence.storageClass=gp2 \
+            --set persistence.size=10Gi \
 
+      - name: Apply Jenkins IngressRoute
+        run: |
+          kubectl apply -f k8s-configs/jenkins-ingressroute.yaml
 
-      # - name: test
-      #   run: |
-      #     kubectl apply -f k8s-configs/tests/middleware.yaml
-      #     kubectl apply -f k8s-configs/tests/ingress-route.yaml
-      #     kubectl apply -f k8s-configs/tests/secret.yaml
+      - name: Apply Jenkins Agent ConfigMap
+        run: |
+          kubectl apply -f k8s-configs/jenkins-agent-config.yaml
 
-      # - name: Deploy Jenkins via Helm
-      #   run: |
-      #     helm repo add jenkins https://charts.jenkins.io
-      #     helm repo update
-      #     helm upgrade --install jenkins jenkins/jenkins \
-      #       --set controller.admin.password=${{ env.JENKINS_ADMIN_PASSWORD }} \
-      #       --set persistence.enabled=true \
-      #       --set persistence.storageClass=gp2 \
-      #       --set persistence.size=10Gi \
+      - name: Get Jenkins Ingress IP
+        id: get_jenkins_ip
+        run: |
+          export SERVICE_IP=$(kubectl get svc traefik --namespace kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          echo "JENKINS_URL=http://$SERVICE_IP" >> $GITHUB_ENV
 
-      # - name: Apply Jenkins Middleware
-      #   run: |
-      #     kubectl apply -f k8s-configs/secure-headers.yaml
+      - name: Update ClouDNS A Record
+        run: |
+          curl -X POST "${{ env.CLOUDNS_API_URL }}/add-record.json" \
+            -d "auth-id=${{ env.CLOUDNS_AUTH_ID }}" \
+            -d "auth-password=${{ env.CLOUDNS_AUTH_PASSWORD }}" \
+            -d "domain-name=${{ env.DOMAIN_NAME }}" \
+            -d "record-type=CNAME" \
+            -d "host=${{ env.SUBDOMAIN }}" \
+            -d "record=${{ env.SERVICE_IP }}" \
+            -d "ttl=60"
 
-      # - name: Apply Jenkins IngressRoute
-      #   run: |
-      #     kubectl apply -f k8s-configs/jenkins-ingressroute.yaml
+      - name: Output Jenkins URL
+        run: echo "Jenkins is available at http://${{ env.SUBDOMAIN }}.${{ env.DOMAIN_NAME }}"
 
-      # - name: Apply Jenkins Agent ConfigMap
-      #   run: |
-      #     kubectl apply -f k8s-configs/jenkins-agent-config.yaml
+      - name: Apply Jenkins RBAC
+        run: |
+          kubectl apply -f k8s-configs/jenkins-rbac.yaml
 
-      # - name: Get Jenkins Ingress IP
-      #   id: get_jenkins_ip
-      #   run: |
-      #     export SERVICE_IP=$(kubectl get svc traefik --namespace kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-      #     echo "JENKINS_URL=http://$SERVICE_IP" >> $GITHUB_ENV
+      - name: Generate Kubeconfig for Jenkins
+        run: |
+          TOKEN=$(kubectl -n default get secret $(kubectl -n default get sa/jenkins -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode)
+          CLUSTER_NAME=$(kubectl config view --minify -o jsonpath='{.clusters[0].name}')
+          CLUSTER_ENDPOINT=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+          CLUSTER_CA=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.certificate-authority-data}')
+          cat <<EOF > kubeconfig-jenkins
+          apiVersion: v1
+          kind: Config
+          clusters:
+          - cluster:
+              certificate-authority-data: ${CLUSTER_CA}
+              server: ${CLUSTER_ENDPOINT}
+            name: ${CLUSTER_NAME}
+          contexts:
+          - context:
+              cluster: ${CLUSTER_NAME}
+              user: jenkins
+            name: jenkins-context
+          current-context: jenkins-context
+          users:
+          - name: jenkins
+            user:
+              token: ${TOKEN}
+          EOF
 
-      # - name: Update ClouDNS A Record
-      #   run: |
-      #     curl -X POST "${{ env.CLOUDNS_API_URL }}/add-record.json" \
-      #       -d "auth-id=${{ env.CLOUDNS_AUTH_ID }}" \
-      #       -d "auth-password=${{ env.CLOUDNS_AUTH_PASSWORD }}" \
-      #       -d "domain-name=${{ env.DOMAIN_NAME }}" \
-      #       -d "record-type=A" \
-      #       -d "host=${{ env.SUBDOMAIN }}" \
-      #       -d "record=${{ env.SERVICE_IP }}" \
-      #       -d "ttl=60"
-
-      # - name: Output Jenkins URL
-      #   run: echo "Jenkins is available at http://${{ env.SUBDOMAIN }}.${{ env.DOMAIN_NAME }}"
-
-      # - name: Apply Jenkins RBAC
-      #   run: |
-      #     kubectl apply -f k8s-configs/jenkins-rbac.yaml
-
-      # - name: Generate Kubeconfig for Jenkins
-      #   run: |
-      #     TOKEN=$(kubectl -n default get secret $(kubectl -n default get sa/jenkins -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode)
-      #     CLUSTER_NAME=$(kubectl config view --minify -o jsonpath='{.clusters[0].name}')
-      #     CLUSTER_ENDPOINT=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.server}')
-      #     CLUSTER_CA=$(kubectl config view --minify -o jsonpath='{.clusters[0].cluster.certificate-authority-data}')
-      #     cat <<EOF > kubeconfig-jenkins
-      #     apiVersion: v1
-      #     kind: Config
-      #     clusters:
-      #     - cluster:
-      #         certificate-authority-data: ${CLUSTER_CA}
-      #         server: ${CLUSTER_ENDPOINT}
-      #       name: ${CLUSTER_NAME}
-      #     contexts:
-      #     - context:
-      #         cluster: ${CLUSTER_NAME}
-      #         user: jenkins
-      #       name: jenkins-context
-      #     current-context: jenkins-context
-      #     users:
-      #     - name: jenkins
-      #       user:
-      #         token: ${TOKEN}
-      #     EOF
-
-      # - name: Upload Kubeconfig to Jenkins
-      #   uses: actions/upload-artifact@v2
-      #   with:
-      #     name: kubeconfig-jenkins
-      #     path: kubeconfig-jenkins
+      - name: Upload Kubeconfig to Jenkins
+        uses: actions/upload-artifact@v2
+        with:
+          name: kubeconfig-jenkins
+          path: kubeconfig-jenkins

@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traefik
+spec:
+  selector:
+    matchLabels:
+      app: traefik
+  template: 
+    metadata:
+      labels:
+        app: traefik
+    spec:
+      serviceAccountName: traefik
+      containers:
+      - image: docker.io/traefik:v3.0
+        name: traefik
+        ports:
+        - name: "web"
+          containerPort: 80
+        args:
+          - "--entrypoints.web.address=:80/tcp"
+          - "--api.dashboard=true"
+          - "--providers.kubernetescrd"

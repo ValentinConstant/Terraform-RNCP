@@ -13,7 +13,5 @@ spec:
     services:
     - name: jenkins
       port: 8080
-    middlewares:
-    - name: secure-headers
   tls:
     certResolver: default
