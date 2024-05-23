@@ -47,12 +47,6 @@ jobs:
         if: github.ref == 'refs/heads/eks-2' && github.event_name == 'push'
         run: terraform apply -input=false -auto-approve tfplan
 
-      - name: Install jq and yq
-        run: |
-          sudo apt-get install -y jq
-          wget https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64 -O /usr/bin/yq &&\
-          chmod +x /usr/bin/yq
-
       - name: Get Terraform Outputs
         id: tf_outputs
         run: |
