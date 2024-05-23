@@ -72,11 +72,6 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-      - name: Install Traefik CRDs and RBAC
-        run: |
-          kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v3.0/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
-          kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v3.0/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
-
       - name: Deploy Traefik Ingress Controller with CRDs
         run: |
           helm repo add traefik https://helm.traefik.io/traefik
@@ -91,6 +86,12 @@ jobs:
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-cert"='"${{ env.SSL_CERT_ARN }}"' \
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-ssl-ports"='"https"' \
             --set service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-connection-idle-timeout"='"3600"'
+
+
+      - name: Install Traefik CRDs and RBAC
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v3.0/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
+          kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v3.0/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
 
       - name: Deploy Jenkins via Helm
         run: |
