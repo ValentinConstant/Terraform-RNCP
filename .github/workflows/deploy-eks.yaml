@@ -50,7 +50,7 @@ jobs:
       - name: Get Terraform Outputs
         id: tf_outputs
         run: |
-          echo "PUBLIC_SUBNETS=$(terraform output -json public_subnets | jq -r '. | join(",")')" >> $GITHUB_ENV
+          echo "PUBLIC_SUBNETS=$(terraform output -json public_subnets | jq -r '.[]' | paste -sd "," -)" >> $GITHUB_ENV
           echo "IAM_ROLE_ARN=$(terraform output -raw traefik_role_arn)" >> $GITHUB_ENV
           echo "SSL_CERT_ARN=$(terraform output -raw ssl_cert_arn)" >> $GITHUB_ENV
 

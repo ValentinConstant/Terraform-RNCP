@@ -25,6 +25,8 @@
        |  +----------------------------+    +---------------------+  |
        +-------------------------------------------------------------+
 
+Cette infrastructure AWS EKS utilise des subnets publics pour exposer des services externes via des Load Balancers et Traefik Ingress Controller, tout en utilisant des subnets privés pour héberger des applications internes comme Jenkins. Les rôles IAM fournissent les permissions nécessaires pour gérer les ressources AWS, et ACM gère les certificats SSL pour sécuriser les communications.
+
 
 ## VPC (Virtual Private Cloud)
 
