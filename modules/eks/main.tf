@@ -19,7 +19,7 @@ resource "aws_eks_cluster" "kbnhvn-cluster" {
 
 
 resource "aws_eks_node_group" "private-nodes" {
-  cluster_name    = var.cluster_name
+  cluster_name    = aws_eks_cluster.kbnhvn-cluster.name
   node_group_name = "private-nodes"
   node_role_arn   = var.nodes_role_arn
 
