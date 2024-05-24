@@ -118,11 +118,6 @@ jobs:
             -d "record=${{ env.DNS_NAME }}" \
             -d "ttl=60"
 
-      - name: Display Jenkins initial password
-        run: |
-          POD_NAME=$(kubectl get pods --namespace=jenkins -o jsonpath="{.items[*].metadata.name}" | tr ' ' '\n' | grep 'jenkins-deployment-')
-          kubectl logs "$POD_NAME" --namespace=jenkins | tail -n 1
-
       - name: Generate Kubeconfig for Jenkins
         run: |
           TOKEN=$(kubectl -n default get secret $(kubectl -n default get sa/jenkins -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode)
