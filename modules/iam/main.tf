@@ -85,7 +85,7 @@ resource "aws_iam_role_policy_attachment" "s3_access" {
 }
 
 resource "aws_iam_policy" "efs_access_policy" {
-  name        = "eks-s3-access"
+  name        = "eks-efs-access"
   description = "Policy to allow EKS nodes to access EFS"
 
   policy = jsonencode({
