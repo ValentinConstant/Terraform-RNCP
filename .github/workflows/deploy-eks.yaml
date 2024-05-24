@@ -51,6 +51,8 @@ jobs:
         id: tf_outputs
         run: |
           echo "CLUSTER_NAME=$(terraform output -raw cluster_name)" >> $GITHUB_ENV
+          echo "FILE_SYSTEM_ID=$(terraform output -raw efs_storage)" >> $GITHUB_ENV
+          echo "ACCESS_POINT_ID=$(terraform output -raw efs_storage_access_point)" >> $GITHUB_ENV
 
       - name: Install kubectl
         uses: azure/setup-kubectl@v1
@@ -73,10 +75,16 @@ jobs:
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
 
-      # - name: Create EFS for Jenkins
-      #   run: |
+      - name: Create EFS for Jenkins
+        run: |
+          helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
+          helm repo update
+          helm update --install aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver --namespace kube-system
 
-          
+          kubectl apply -f k8s-config/storage/storageClass.yaml
+
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-config/storage/pv.yaml
+          kubectl apply -f k8s-config/storage/pv.yaml
 
       - name: Deploy Jenkins
         run: |
@@ -89,7 +97,7 @@ jobs:
           fi
 
           kubectl apply -f k8s-configs/jenkins/serviceAccount.yaml
-          kubectl create -f k8s-configs/jenkins/volume.yaml
+          kubectl apply -f k8s-configs/jenkins/volume.yaml
           kubectl apply -f k8s-configs/jenkins/deployment.yaml
           kubectl apply -f k8s-configs/jenkins/service.yaml
           kubectl apply -f k8s-configs/jenkins/ingress.yaml

@@ -30,6 +30,7 @@ module "iam" {
     module.storage.etcd_backup_bucket,
     module.storage.postgres_backup_bucket,
     module.storage.elasticsearch_backup_bucket,
+    module.storage.efs_storage
   ]
 }
 

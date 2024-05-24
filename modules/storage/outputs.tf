@@ -17,3 +17,8 @@ output "efs_storage" {
   description = "EFS storage for jenkins"
   value       = aws_efs_file_system.jenkins.id
 }
+
+output "efs_storage_access_point" {
+  description = "EFS storage access point for jenkins"
+  value       = aws_efs_access_point.jenkins.file_system_id
+}

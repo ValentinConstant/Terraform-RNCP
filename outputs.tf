@@ -22,3 +22,8 @@ output "efs_storage" {
   description = "EFS storage for jenkins"
   value       = module.storage.efs_storage
 }
+
+output "efs_storage_access_point" {
+  description = "EFS storage access point for jenkins"
+  value       = module.storage.efs_storage_access_point
+}

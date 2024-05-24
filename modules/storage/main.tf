@@ -33,4 +33,11 @@ resource "aws_efs_file_system" "jenkins" {
   }
 }
 
+resource "aws_efs_access_point" "jenkins" {
+  file_system_id = aws_efs_file_system.jenkins.id
+  root_directory {
+    path = "/jenkins-data"
+  }
+}
+
 data "aws_caller_identity" "current" {}
