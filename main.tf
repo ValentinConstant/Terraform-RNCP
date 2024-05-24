@@ -50,8 +50,10 @@ module "eks" {
   cluster_role_arn = module.iam.eks_role_cluster
   public_subnet_1  = module.vpc.public_subnet_1
   public_subnet_2  = module.vpc.public_subnet_2
+  public_subnet_3  = module.vpc.public_subnet_3
   private_subnet_1 = module.vpc.private_subnet_1
   private_subnet_2 = module.vpc.private_subnet_2
+  private_subnet_3 = module.vpc.private_subnet_3
   cluster_policy   = module.iam.cluster_policy
   workers_policy   = module.iam.workers_policy 
   cni_policy       = module.iam.cni_policy

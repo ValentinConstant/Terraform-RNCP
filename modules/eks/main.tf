@@ -7,7 +7,9 @@ resource "aws_eks_cluster" "kbnhvn-cluster" {
     subnet_ids = [
       var.private_subnet_1,
       var.private_subnet_2,
+      var.private_subnet_3,
       var.public_subnet_1,
+      var.public_subnet_2,
       var.public_subnet_2
     ]
     endpoint_private_access = false
@@ -25,7 +27,8 @@ resource "aws_eks_node_group" "private-nodes" {
 
   subnet_ids = [
     var.private_subnet_1,
-    var.private_subnet_2
+    var.private_subnet_2,
+    var.private_subnet_3
   ]
 
   capacity_type  = "ON_DEMAND"
