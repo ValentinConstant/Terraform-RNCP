@@ -99,7 +99,8 @@ resource "aws_iam_policy" "efs_access_policy" {
           "elasticfilesystem:DescribeFileSystems",
           "elasticfilesystem:CreateAccessPoint",
           "elasticfilesystem:DescribeAccessPoints",
-          "elasticfilesystem:DeleteAccessPoint"
+          "elasticfilesystem:DeleteAccessPoint",
+          "elasticfilesystem:DescribeMountTargets"
         ],
         "Resource": "*"
       }
