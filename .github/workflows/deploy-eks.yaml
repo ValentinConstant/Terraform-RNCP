@@ -92,7 +92,7 @@ jobs:
       - name: Get Load Balancer DNS name
         run: |
           DNS_NAME=$(kubectl get svc traefik --namespace traefik -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-          echo "$DNS_NAME" >> $GITHUB_ENV
+          echo "DNS_NAME=${DNS_NAME}" >> $GITHUB_ENV
 
       - name: Update ClouDNS A Record
         run: |
