@@ -73,10 +73,9 @@ jobs:
         run: |
           helm repo add traefik https://helm.traefik.io/traefik
           helm repo update
-          helm upgrade --install traefik traefik/traefik --create-namespace --namespace=traefik --values=k8s-configs/traefik/values.yaml
-
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
+          helm upgrade --install traefik traefik/traefik --create-namespace --namespace=traefik --values=k8s-configs/traefik/values.yam
 
       - name: Deploy Traefik
         run: |
