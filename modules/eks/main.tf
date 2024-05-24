@@ -35,9 +35,9 @@ resource "aws_eks_node_group" "private-nodes" {
   instance_types = [var.instance_type]
 
   scaling_config {
-    desired_size = 1
-    max_size     = 5
-    min_size     = 0
+    desired_size = var.desired_size
+    max_size     = var.max_size
+    min_size     = var.max_size
   }
 
   update_config {
