@@ -48,7 +48,14 @@ module "eks" {
   instance_type    = var.instance_type
   nodes_role_arn   = module.iam.eks_role_nodes
   cluster_role_arn = module.iam.eks_role_cluster
-
+  public_subnet_1  = module.vpc.public_subnet_1
+  public_subnet_2  = module.vpc.public_subnet_2
+  private_subnet_1 = module.vpc.private_subnet_1
+  private_subnet_2 = module.vpc.private_subnet_2
+  cluster_policy   = module.iam.cluster_policy
+  workers_policy   = module.iam.workers_policy 
+  cni_policy       = module.iam.cni_policy
+  ec2_container_registry = module.iam.ec2_container_registry
 }
 
 terraform {

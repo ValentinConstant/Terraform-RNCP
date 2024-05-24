@@ -5,16 +5,16 @@ resource "aws_eks_cluster" "kbnhvn-cluster" {
 
   vpc_config {
     subnet_ids = [
-      module.vpc.aws_subnet.private-eu-west-3a.id,
-      module.vpc.aws_subnet.private-eu-west-3b.id,
-      module.vpc.aws_subnet.public-eu-west-3a.id,
-      module.vpc.aws_subnet.public-eu-west-3b.id
+      var.private_subnet_1,
+      var.private_subnet_2,
+      var.public_subnet_1,
+      var.public_subnet_2
     ]
     endpoint_private_access = false
     endpoint_public_access = true
   }
 
-  depends_on = [module.iam.cluster_policy]
+  depends_on = [var.cluster_policy]
 }
 
 
@@ -24,8 +24,8 @@ resource "aws_eks_node_group" "private-nodes" {
   node_role_arn   = var.nodes_role_arn
 
   subnet_ids = [
-    module.vpc.aws_subnet.private-eu-west-3a.id,
-    module.vpc.aws_subnet.private-eu-west-3b.id
+    var.private_subnet_1,
+    var.private_subnet_2
   ]
 
   capacity_type  = "ON_DEMAND"
@@ -47,8 +47,8 @@ resource "aws_eks_node_group" "private-nodes" {
 
 
   depends_on = [
-    module.iam.workers_policy,
-    module.iam.cni_policy,
-    module.iam.ec2_container_registry,
+    var.workers_policy,
+    var.cni_policy,
+    var.ec2_container_registry,
   ]
 }

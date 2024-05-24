@@ -9,21 +9,21 @@ output "eks_role_nodes" {
 }
 
 output "cluster_policy"{
-  description = "IAM policy for cluster"
+  description = "IAM policy for cluster id"
   value = aws_iam_role_policy_attachment.eks_cluster_policy.id
 }
 
 output "workers_policy"{
-  description = "workers_node_policy"
+  description = "workers_node_policy id"
   value = aws_iam_role_policy_attachment.nodes-AmazonEKSWorkerNodePolicy.id
 }
 
 output "cni_policy"{
-  description = "EKS CNI policy"
+  description = "EKS CNI policy id"
   value = aws_iam_role_policy_attachment.nodes-AmazonEKS_CNI_Policy.id
 }
 
 output "ec2_container_registry"{
-  description = "EC2 container registry policy"
+  description = "EC2 container registry policy id"
   value = aws_iam_role_policy_attachment.nodes-AmazonEC2ContainerRegistryReadOnly.id
 }

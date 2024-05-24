@@ -33,3 +33,43 @@ variable "cluster_role_arn" {
   type        = string
 }
 
+variable "public_subnet_1" {
+  description = "ID of public subnet 1"
+  type        = string
+}
+
+variable "public_subnet_2" {
+  description = "ID of public sunet 2"
+  type        = string
+}
+
+variable "private_subnet_1" {
+  description = "ID of private subnet 1"
+  type        = string
+}
+
+variable "private_subnet_2" {
+  description = "ID of private subnet 2"
+  type        = string
+}
+
+variable "cluster_policy" {
+  description = "IAM policy for cluster id"
+  type        = string
+}
+
+variable "workers_policy" {
+  description = "workers_node_policy id"
+  type        = string
+}
+
+variable "cni_policy" {
+  description = "EKS CNI policy id"
+  type        = string
+}
+
+variable "ec2_container_registry" {
+  description = "EC2 container registry policy id"
+  type        = string
+}
+
