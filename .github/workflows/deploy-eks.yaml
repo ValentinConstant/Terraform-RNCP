@@ -69,34 +69,29 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-      - name: Install AWS Load Balancer Controller
-        run: |
-          helm repo add eks https://aws.github.io/eks-charts
-          helm repo update eks
-          helm upgrade --install aws-load-balancer-controller eks/aws-load-balancer-controller \
-          -n kube-system \
-          --set clusterName=kbnhvn-cluster \
-          --set serviceAccount.create=false \
-          --set serviceAccount.name=aws-load-balancer-controller \
-          --set enableServiceMutatorWebhook=false
-
       - name: Install Traefik CRDs and RBAC
         run: |
+          helm upgrade --install traefik traefik/traefik --create-namespace --namespace=traefik --values=k8s-configs/traefik/values.yaml
+
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
 
       - name: Deploy Traefik
         run: |
-          kubectl apply -f k8s-configs/traefik/deployment.yaml
-          kubectl apply -f k8s-configs/traefik/service.yaml
-          kubectl apply -f k8s-configs/traefik/ingress.yaml
+          kubectl apply -f k8s-configs/traefik/secret.yaml
+          kubectl apply -f k8s-configs/traefik/middleware.yaml
           kubectl apply -f k8s-configs/traefik/ingressroute.yaml
+
+      - name: Deploy Traefik
+        run: |
+          kubectl apply -f k8s-configs/whoami/whoami.yaml
+          kubectl apply -f k8s-configs/whoami/ingress.yaml
 
       - name: Deploy Jenkins via Helm
         run: |
           helm repo add jenkins https://charts.jenkins.io
           helm repo update
-          helm upgrade --install jenkins jenkins/jenkins \
+          helm upgrade --install jenkins jenkins/jenkins --create-namespace --namespace=jenkins \
             --set controller.admin.password=${{ env.JENKINS_ADMIN_PASSWORD }} \
             --set persistence.enabled=true \
             --set persistence.storageClass=gp2 \
@@ -113,7 +108,7 @@ jobs:
       - name: Get Jenkins Ingress IP
         id: get_jenkins_ip
         run: |
-          export SERVICE_IP=$(kubectl get svc traefik --namespace kube-system -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          export SERVICE_IP=$(kubectl get svc traefik --namespace traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
           echo "JENKINS_URL=http://$SERVICE_IP" >> $GITHUB_ENV
 
       - name: Update ClouDNS A Record

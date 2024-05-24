@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: jenkins-agent-config
-  namespace: default
+  namespace: jenkins
 data:
   jenkins-agent.yaml: |
     kind: Pod
