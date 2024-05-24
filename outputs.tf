@@ -5,15 +5,20 @@ output "cluster_name" {
 
 output "etcd_backup_bucket" {
   description = "S3 bucket for etcd backups"
-  value       = module.s3.etcd_backup_bucket
+  value       = module.storage.etcd_backup_bucket
 }
 
 output "postgres_backup_bucket" {
   description = "S3 bucket for PostgreSQL backups"
-  value       = module.s3.postgres_backup_bucket
+  value       = module.storage.postgres_backup_bucket
 }
 
 output "elasticsearch_backup_bucket" {
   description = "S3 bucket for Elasticsearch backups"
-  value       = module.s3.elasticsearch_backup_bucket
+  value       = module.storage.elasticsearch_backup_bucket
+}
+
+output "efs_storage" {
+  description = "EFS storage for jenkins"
+  value       = module.storage.efs_storage
 }
