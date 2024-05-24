@@ -81,10 +81,10 @@ jobs:
           helm repo update
           helm upgrade --install aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver --namespace kube-system
 
-          kubectl apply -f k8s-config/storage/storageClass.yaml
+          kubectl apply -f k8s-configs/storage/storageClass.yaml
 
-          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-config/storage/pv.yaml
-          kubectl apply -f k8s-config/storage/pv.yaml
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv.yaml
+          kubectl apply -f k8s-configs/storage/pv.yaml
 
       - name: Deploy Jenkins
         run: |
