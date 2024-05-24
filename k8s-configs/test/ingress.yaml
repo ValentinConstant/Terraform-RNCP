@@ -4,7 +4,6 @@ metadata:
   name: foo
   annotations:
     kubernetes.io/ingress.class: traefik
-    nginx.ingress.kubernetes.io/ssl-redirect: false
 spec:
   rules:
     - host: nginx.kbnhvn-project.eu
