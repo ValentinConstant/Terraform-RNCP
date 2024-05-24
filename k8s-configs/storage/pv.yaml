@@ -10,6 +10,8 @@ spec:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ""
+  claimRef:
+    name: jenkins-pv-claim
   csi:
     driver: efs.csi.aws.com
     volumeHandle: <DATA>
