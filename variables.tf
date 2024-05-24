@@ -13,26 +13,6 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "public_subnets" {
-  description = "A list of public subnet CIDR blocks"
-  type        = list(string)
-}
-
-variable "private_subnets" {
-  description = "A list of private subnet CIDR blocks"
-  type        = list(string)
-}
-
-variable "availability_zones" {
-  description = "A list of availability zones in the region"
-  type        = list(string)
-}
-
-variable "key_name" {
-  description = "The key name to use for the EC2 instances"
-  type        = string
-}
-
 variable "cluster_name" {
   description = "The name of the EKS cluster"
   type        = string

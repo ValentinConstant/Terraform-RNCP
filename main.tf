@@ -2,6 +2,15 @@ provider "aws" {
   region = var.region
 }
 
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
+  }
+}
+
 data "aws_acm_certificate" "cert" {
   domain       = var.domain_name
   types        = ["AMAZON_ISSUED"]
@@ -12,18 +21,7 @@ module "vpc" {
   source  = "./modules/vpc"
   vpc_name = var.vpc_name
   vpc_cidr = var.vpc_cidr
-  azs             = var.availability_zones
-  private_subnets = var.private_subnets
-  public_subnets  = var.public_subnets
   cluster_name    = var.cluster_name
-
-}
-
-module "security_groups" {
-  source = "./modules/security_groups"
-  vpc_id = module.vpc.vpc_id
-  vpc_cidr = var.vpc_cidr
-  cluster_name = var.cluster_name
 }
 
 module "iam" {
@@ -42,22 +40,15 @@ module "s3" {
 }
 
 module "eks" {
-  source          = "./modules/eks"
-  cluster_name    = var.cluster_name
-  cluster_version = "1.29"
-  subnets         = module.vpc.private_subnet_ids
-  vpc_id          = module.vpc.vpc_id
-  desired_capacity = var.desired_capacity
-  max_capacity     = var.max_capacity
-  min_capacity     = var.min_capacity
+  source           = "./modules/eks"
+  cluster_name     = var.cluster_name
+  desired_size     = var.desired_capacity
+  max_size         = var.max_capacity
+  min_size         = var.min_capacity
   instance_type    = var.instance_type
-  key_name         = var.key_name
-  node_role_arn    = module.iam.eks_role_arn
+  nodes_role_arn   = module.iam.eks_role_nodes
+  cluster_role_arn = module.iam.eks_role_cluster
 
-  tags = {
-    Environment = "dev"
-    Name        = var.cluster_name
-  }
 }
 
 terraform {
