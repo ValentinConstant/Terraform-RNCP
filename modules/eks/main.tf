@@ -10,7 +10,7 @@ resource "aws_eks_cluster" "kbnhvn-cluster" {
       var.private_subnet_3,
       var.public_subnet_1,
       var.public_subnet_2,
-      var.public_subnet_2
+      var.public_subnet_3
     ]
     endpoint_private_access = false
     endpoint_public_access = true
