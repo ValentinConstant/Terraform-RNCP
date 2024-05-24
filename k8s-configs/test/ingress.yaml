@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: foo
+annotations:
+  kubernetes.io/ingress.class: traefik
+  nginx.ingress.kubernetes.io/ssl-redirect: false
+spec:
+  rules:
+    - host: nginx.kbnhvn-project.eu
+      http:
+        paths:
+          - backend:
+              service:
+                name: app-service
+                port:
+                  number: 80

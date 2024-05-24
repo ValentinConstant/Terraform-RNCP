@@ -73,6 +73,12 @@ jobs:
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
 
+      - name: Test nginx
+        run: |
+          kubectl apply -f k8s-configs/test/deployment.yaml
+          kubectl apply -f k8s-configs/test/service.yaml
+          kubectl apply -f k8s-configs/test/ingress.yaml
+
       - name: Deploy Jenkins via Helm
         run: |
           helm repo add jenkins https://charts.jenkins.io
