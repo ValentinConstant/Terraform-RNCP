@@ -73,7 +73,7 @@ resource "aws_subnet" "public-eu-west-3b" {
 # ------------- NAT GAteway definition ------------ #
 
 resource "aws_eip" "nat" {
-  domain = "vpc"
+  vpc = true
 
   tags = {
     Name = "nat"
