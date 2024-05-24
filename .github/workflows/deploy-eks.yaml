@@ -85,11 +85,11 @@ jobs:
 
       - name: Apply Jenkins IngressRoute
         run: |
-          kubectl apply -f k8s-configs/jenkins-ingressroute.yaml
+          kubectl apply -f k8s-configs/jenkins/jenkins-ingressroute.yaml
 
       - name: Apply Jenkins Agent ConfigMap
         run: |
-          kubectl apply -f k8s-configs/jenkins-agent-config.yaml
+          kubectl apply -f k8s-configs/jenkins/jenkins-agent-config.yaml
 
       - name: Get Jenkins Ingress IP
         id: get_jenkins_ip
@@ -113,7 +113,7 @@ jobs:
 
       - name: Apply Jenkins RBAC
         run: |
-          kubectl apply -f k8s-configs/jenkins-rbac.yaml
+          kubectl apply -f k8s-configs/jenkins/jenkins-rbac.yaml
 
       - name: Generate Kubeconfig for Jenkins
         run: |
