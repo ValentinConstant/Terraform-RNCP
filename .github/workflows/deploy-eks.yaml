@@ -73,6 +73,10 @@ jobs:
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
 
+      # - name: Create EFS for Jenkins
+      #   run: |
+
+
       - name: Deploy Jenkins
         run: |
           if kubectl get namespace jenkins > /dev/null 2>&1; then
@@ -84,7 +88,7 @@ jobs:
           fi
 
           kubectl apply -f k8s-configs/jenkins/serviceAccount.yaml
-          kubectl apply -f k8s-configs/jenkins/volume.yaml
+          kubectl create -f k8s-configs/jenkins/volume.yaml
           kubectl apply -f k8s-configs/jenkins/deployment.yaml
           kubectl apply -f k8s-configs/jenkins/service.yaml
           kubectl apply -f k8s-configs/jenkins/ingress.yaml

@@ -25,4 +25,12 @@ resource "aws_s3_bucket" "elasticsearch_backup" {
   }
 }
 
+resource "aws_efs_file_system" "jenkins" {
+  creation_token = "jenkins-storage"
+
+  tags = {
+    Name = "Jenkins"
+  }
+}
+
 data "aws_caller_identity" "current" {}

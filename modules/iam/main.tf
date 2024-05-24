@@ -84,3 +84,32 @@ resource "aws_iam_role_policy_attachment" "s3_access" {
   policy_arn = aws_iam_policy.s3_access_policy.arn
 }
 
+resource "aws_iam_policy" "efs_access_policy" {
+  name        = "eks-s3-access"
+  description = "Policy to allow EKS nodes to access EFS"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "elasticfilesystem:ClientMount",
+          "elasticfilesystem:ClientWrite",
+          "elasticfilesystem:DescribeFileSystems",
+          "elasticfilesystem:CreateAccessPoint",
+          "elasticfilesystem:DescribeAccessPoints",
+          "elasticfilesystem:DeleteAccessPoint"
+        ],
+        "Resource": "*"
+      }
+  ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "efs_access" {
+  role       = aws_iam_role.nodes.name
+  policy_arn = aws_iam_policy.efs_access_policy.arn
+}
+
+

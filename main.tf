@@ -27,14 +27,14 @@ module "vpc" {
 module "iam" {
   source = "./modules/iam"
   s3_buckets = [
-    module.s3.etcd_backup_bucket,
-    module.s3.postgres_backup_bucket,
-    module.s3.elasticsearch_backup_bucket
+    module.storage.etcd_backup_bucket,
+    module.storage.postgres_backup_bucket,
+    module.storage.elasticsearch_backup_bucket,
   ]
 }
 
-module "s3" {
-  source      = "./modules/s3"
+module "storage" {
+  source      = "./modules/storage"
   prefix      = var.prefix
   environment = var.environment
 }

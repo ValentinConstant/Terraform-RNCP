@@ -12,3 +12,8 @@ output "elasticsearch_backup_bucket" {
   description = "S3 bucket for Elasticsearch backups"
   value       = aws_s3_bucket.elasticsearch_backup.bucket
 }
+
+output "efs_storage" {
+  description = "EFS storage for jenkins"
+  value       = aws_efs_file_system.jenkins.id
+}
