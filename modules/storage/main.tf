@@ -27,16 +27,42 @@ resource "aws_s3_bucket" "elasticsearch_backup" {
 
 resource "aws_efs_file_system" "jenkins" {
   creation_token = "jenkins-storage"
-
   tags = {
     Name = "Jenkins"
   }
 }
 
+resource "aws_efs_mount_target" "az_1" {
+  file_system_id = aws_efs_file_system.jenkins.id
+  subnet_id = var.private_subnet_1
+  security_groups = [var.efs-mount-sg]
+}
+
+resource "aws_efs_mount_target" "az_2" {
+  file_system_id = aws_efs_file_system.jenkins.id
+  subnet_id = var.private_subnet_2
+  security_groups = [var.efs-mount-sg]
+}
+
+resource "aws_efs_mount_target" "az_3" {
+  file_system_id = aws_efs_file_system.jenkins.id
+  subnet_id = var.private_subnet_3
+  security_groups = [var.efs-mount-sg]
+}
+
 resource "aws_efs_access_point" "jenkins" {
   file_system_id = aws_efs_file_system.jenkins.id
+  posix_user {
+    uid = 1000
+    gid = 1000
+  }
   root_directory {
-    path = "/jenkins-data"
+    path = "/jenkins"
+    creation_info {
+      owner_gid = 1000
+      owner_uid = 1000
+      permissions = 777
+    }
   }
 }
 

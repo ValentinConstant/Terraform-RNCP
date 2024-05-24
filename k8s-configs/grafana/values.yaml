@@ -6,3 +6,7 @@ ingress:
       - app.kbnhvn-project.eu
     path: /grafana
     pathType: Prefix
+service:
+  enabled: true
+  type: ClusterIP
+  port: 80

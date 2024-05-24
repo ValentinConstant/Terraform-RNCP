@@ -199,3 +199,20 @@ resource "aws_route_table_association" "public-eu-west-3c" {
   subnet_id      = aws_subnet.public-eu-west-3c.id
   route_table_id = aws_route_table.public.id
 }
+
+
+# ---------- EFS Security group ---------- #
+
+resource "aws_security_group" "efs-mount-sg" {
+  vpc_id = aws_vpc.main.id
+  name_prefix = "efs-mount-sg"
+  description = "Amazon EFS for EKS, SG for mount target"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "efs-mount-sg" {
+  security_group_id = aws_security_group.efs-mount-sg.id
+  cidr_ipv4         = aws_vpc.main.cidr_block
+  from_port         = 2049
+  ip_protocol       = "tcp"
+  to_port           = 2049
+}

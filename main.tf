@@ -38,6 +38,10 @@ module "storage" {
   source      = "./modules/storage"
   prefix      = var.prefix
   environment = var.environment
+  private_subnet_1 = module.vpc.private_subnet_1
+  private_subnet_2 = module.vpc.private_subnet_2
+  private_subnet_3 = module.vpc.private_subnet_3
+  efs-mount-sg = module.vpc.efs-mount-sg
 }
 
 module "eks" {
