@@ -73,35 +73,26 @@ jobs:
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
 
-      - name: Test nginx
+      - name: Deploy Jenkins
         run: |
-          kubectl apply -f k8s-configs/test/deployment.yaml
-          kubectl apply -f k8s-configs/test/service.yaml
-          kubectl apply -f k8s-configs/test/ingress.yaml
+          if kubectl get namespace jenkins > /dev/null 2>&1; then
+            echo "Namespace jenkins already exists."
+          else
+            # Create the namespace
+            kubectl create namespace jenkins
+            echo "Namespace jenkins created."
+          fi
 
-      - name: Deploy Jenkins via Helm
-        run: |
-          helm repo add jenkins https://charts.jenkins.io
-          helm repo update
-          helm upgrade --install jenkins jenkins/jenkins --create-namespace --namespace=jenkins \
-            --set controller.admin.password=${{ env.JENKINS_ADMIN_PASSWORD }} \
-            --set persistence.enabled=true \
-            --set persistence.storageClass=gp2 \
-            --set persistence.size=10Gi \
+          kubectl apply -f k8s-configs/jenkins/serviceAccount.yaml
+          kubectl apply -f k8s-configs/jenkins/volume.yaml
+          kubectl apply -f k8s-configs/jenkins/deployment.yaml
+          kubectl apply -f k8s-configs/jenkins/service.yaml
+          kubectl apply -f k8s-configs/jenkins/ingress.yaml
 
-      - name: Apply Jenkins IngressRoute
+      - name: Get Load Balancer DNS name
         run: |
-          kubectl apply -f k8s-configs/jenkins/jenkins-ingressroute.yaml
-
-      - name: Apply Jenkins Agent ConfigMap
-        run: |
-          kubectl apply -f k8s-configs/jenkins/jenkins-agent-config.yaml
-
-      - name: Get Jenkins Ingress IP
-        id: get_jenkins_ip
-        run: |
-          export SERVICE_IP=$(kubectl get svc traefik --namespace traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          echo "JENKINS_URL=http://$SERVICE_IP" >> $GITHUB_ENV
+          DNS_NAME=$(kubectl get svc traefik --namespace traefik -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "$DNS_NAME" >> $GITHUB_ENV
 
       - name: Update ClouDNS A Record
         run: |
@@ -111,15 +102,13 @@ jobs:
             -d "domain-name=${{ env.DOMAIN_NAME }}" \
             -d "record-type=CNAME" \
             -d "host=${{ env.SUBDOMAIN }}" \
-            -d "record=${{ env.SERVICE_IP }}" \
+            -d "record=${{ env.DNS_NAME }}" \
             -d "ttl=60"
 
-      - name: Output Jenkins URL
-        run: echo "Jenkins is available at http://${{ env.SUBDOMAIN }}.${{ env.DOMAIN_NAME }}"
-
-      - name: Apply Jenkins RBAC
+      - name: Display Jenkins initial password
         run: |
-          kubectl apply -f k8s-configs/jenkins/jenkins-rbac.yaml
+          POD_NAME=$(kubectl get pods --namespace=jenkins -o jsonpath="{.items[*].metadata.name}" | tr ' ' '\n' | grep 'jenkins-deployment-')
+          kubectl logs "$POD_NAME" --namespace=jenkins | tail -n 1
 
       - name: Generate Kubeconfig for Jenkins
         run: |

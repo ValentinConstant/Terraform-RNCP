@@ -7,12 +7,13 @@ metadata:
     kubernetes.io/ingress.class: traefik
 spec:
   rules:
-  - http:
+  - host: jenkins.kbnhvn-project.eu
+    http:
       paths:
-      - path: /jenkins
+      - path: /
         pathType: Prefix
         backend:
           service:
-            name: jenkins
+            name: jenkins-service
             port:
               number: 8080
