@@ -20,5 +20,5 @@ output "efs_storage" {
 
 output "efs_storage_access_point" {
   description = "EFS storage access point for jenkins"
-  value       = aws_efs_access_point.jenkins.file_system_id
+  value       = aws_efs_access_point.jenkins.id
 }
