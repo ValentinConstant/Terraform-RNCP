@@ -21,7 +21,8 @@ jobs:
       CLOUDNS_AUTH_ID: ${{ secrets.CLOUDNS_AUTH_ID }}
       CLOUDNS_AUTH_PASSWORD: ${{ secrets.CLOUDNS_AUTH_PASSWORD }}
       DOMAIN_NAME: "kbnhvn-project.eu"
-      SUBDOMAIN: "jenkins"
+      JENKINS_SUBDOMAIN: "jenkins"
+      APP_SUBDOMAIN: "app"
 
     steps:
       - name: Checkout code
@@ -71,7 +72,7 @@ jobs:
         run: |
           helm repo add traefik https://helm.traefik.io/traefik
           helm repo update
-          helm upgrade --install traefik  --namespace traefik --create-namespace --set dashboard.enabled=true traefik/traefik
+          helm upgrade --install traefik  --namespace traefik --create-namespace -f k8s-configs/traefik/values.yaml --set dashboard.enabled=true traefik/traefik
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-definition-v1.yml
           kubectl apply -f https://raw.githubusercontent.com/traefik/traefik/v2.8/docs/content/reference/dynamic-configuration/kubernetes-crd-rbac.yml
 
@@ -81,6 +82,7 @@ jobs:
           helm repo update
           helm upgrade --install aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver --namespace kube-system
 
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}/g" k8s-configs/storage/storageClass.yaml
           kubectl apply -f k8s-configs/storage/storageClass.yaml
 
           sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv.yaml
@@ -102,19 +104,42 @@ jobs:
           kubectl apply -f k8s-configs/jenkins/service.yaml
           kubectl apply -f k8s-configs/jenkins/ingress.yaml
 
+      - name: Deploy Prometheus
+        run: |
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+          helm upgrade --install prometheus prometheus-community/prometheus --namespace monitoring --create-namespace -f k8s-configs/prometheus/values.yaml
+
+      - name: Deploy grafana
+        run: |
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+          helm upgrade --install grafana grafana/grafana --namespace monitoring --create-namespace -f k8s-configs/grafana/values.yaml
+
       - name: Get Load Balancer DNS name
         run: |
           DNS_NAME=$(kubectl get svc traefik --namespace traefik -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
           echo "DNS_NAME=${DNS_NAME}" >> $GITHUB_ENV
 
-      - name: Update ClouDNS A Record
+      - name: Update ClouDNS CNAME for Jenkins
         run: |
           curl -X POST "${{ env.CLOUDNS_API_URL }}/add-record.json" \
             -d "auth-id=${{ env.CLOUDNS_AUTH_ID }}" \
             -d "auth-password=${{ env.CLOUDNS_AUTH_PASSWORD }}" \
             -d "domain-name=${{ env.DOMAIN_NAME }}" \
             -d "record-type=CNAME" \
-            -d "host=${{ env.SUBDOMAIN }}" \
+            -d "host=${{ env.JENKINS_SUBDOMAIN }}" \
+            -d "record=${{ env.DNS_NAME }}" \
+            -d "ttl=60"
+
+      - name: Update ClouDNS CNAME for App
+        run: |
+          curl -X POST "${{ env.CLOUDNS_API_URL }}/add-record.json" \
+            -d "auth-id=${{ env.CLOUDNS_AUTH_ID }}" \
+            -d "auth-password=${{ env.CLOUDNS_AUTH_PASSWORD }}" \
+            -d "domain-name=${{ env.DOMAIN_NAME }}" \
+            -d "record-type=CNAME" \
+            -d "host=${{ env.APP_SUBDOMAIN }}" \
             -d "record=${{ env.DNS_NAME }}" \
             -d "ttl=60"
 

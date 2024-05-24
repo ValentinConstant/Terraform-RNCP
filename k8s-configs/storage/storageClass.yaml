@@ -3,3 +3,10 @@ kind: StorageClass
 metadata:
   name: efs-sc
 provisioner: efs.csi.aws.com
+parameters:
+  provisioningMode: efs-ap
+  fileSystemId: <DATA>
+  directoryPerms: "700"
+  gidRangeStart: "1000"
+  gidRangeEnd: "2000"
+  basePath: "/jenkins-data"
