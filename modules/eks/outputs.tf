@@ -1,6 +1,6 @@
 output "cluster_id" {
   description = "The ID of the EKS cluster"
-  value       = aws_eks_cluster.kbnhvn-cluster.cluster_id
+  value       = aws_eks_cluster.kbnhvn-cluster.id
 }
 
 output "cluster_name" {
