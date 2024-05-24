@@ -9,9 +9,7 @@ spec:
   accessModes:
     - ReadWriteMany
   persistentVolumeReclaimPolicy: Retain
-  storageClassName: ""
-  claimRef:
-    name: jenkins-pv-claim
+  storageClassName: efs-sc
   csi:
     driver: efs.csi.aws.com
     volumeHandle: <DATA>

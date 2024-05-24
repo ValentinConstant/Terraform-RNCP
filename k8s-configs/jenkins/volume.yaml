@@ -4,7 +4,7 @@ metadata:
   name: jenkins-pv-claim
   namespace: jenkins
 spec:
-  storageClassName: ""
+  storageClassName: efs-sc
   volumeName: efs-pv
   accessModes:
     - ReadWriteOnce
