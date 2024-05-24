@@ -4,6 +4,7 @@ metadata:
   name: jenkins
   namespace: jenkins
 spec:
+  serviceName: jenkins-service
   replicas: 1
   selector:
     matchLabels:
