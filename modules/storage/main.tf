@@ -32,19 +32,19 @@ resource "aws_efs_file_system" "jenkins" {
   }
 }
 
-resource "aws_efs_mount_target" "jenkins" {
+resource "aws_efs_mount_target" "az_1" {
   file_system_id = aws_efs_file_system.jenkins.id
   subnet_id = var.private_subnet_1
   security_groups = [var.efs-mount-sg]
 }
 
-resource "aws_efs_mount_target" "jenkins" {
+resource "aws_efs_mount_target" "az_2" {
   file_system_id = aws_efs_file_system.jenkins.id
   subnet_id = var.private_subnet_2
   security_groups = [var.efs-mount-sg]
 }
 
-resource "aws_efs_mount_target" "jenkins" {
+resource "aws_efs_mount_target" "az_3" {
   file_system_id = aws_efs_file_system.jenkins.id
   subnet_id = var.private_subnet_3
   security_groups = [var.efs-mount-sg]

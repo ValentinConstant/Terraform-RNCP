@@ -25,5 +25,5 @@ output "efs_storage_access_point" {
 
 output "efs_mount_target_dns" {
   description = "Address of the mount target provisioned."
-  value       = aws_efs_mount_target.jenkins.dns_name
+  value       = aws_efs_mount_target.az_1.dns_name
 }
