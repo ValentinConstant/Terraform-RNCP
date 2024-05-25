@@ -27,3 +27,8 @@ output "efs_storage_access_point" {
   description = "EFS storage access point for jenkins"
   value       = module.storage.efs_storage_access_point
 }
+
+output "efs_mount_target_dns" {
+  description = "Address of the mount target provisioned."
+  value       = module.storage.efs_mount_target_dns
+}

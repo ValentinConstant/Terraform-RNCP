@@ -13,3 +13,5 @@ spec:
   csi:
     driver: efs.csi.aws.com
     volumeHandle: <DATA>
+    volumeAttributes:
+      mounttargetip: <DNS>
