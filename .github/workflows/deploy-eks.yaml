@@ -145,6 +145,28 @@ jobs:
             -d "record=${{ env.DNS_NAME }}" \
             -d "ttl=60"
 
+      - name: Update ClouDNS CNAME for Grafana
+        run: |
+          curl -X POST "${{ env.CLOUDNS_API_URL }}/add-record.json" \
+            -d "auth-id=${{ env.CLOUDNS_AUTH_ID }}" \
+            -d "auth-password=${{ env.CLOUDNS_AUTH_PASSWORD }}" \
+            -d "domain-name=${{ env.DOMAIN_NAME }}" \
+            -d "record-type=CNAME" \
+            -d "host=grafana" \
+            -d "record=${{ env.DNS_NAME }}" \
+            -d "ttl=60"
+
+      - name: Update ClouDNS CNAME for Prometheus
+        run: |
+          curl -X POST "${{ env.CLOUDNS_API_URL }}/add-record.json" \
+            -d "auth-id=${{ env.CLOUDNS_AUTH_ID }}" \
+            -d "auth-password=${{ env.CLOUDNS_AUTH_PASSWORD }}" \
+            -d "domain-name=${{ env.DOMAIN_NAME }}" \
+            -d "record-type=CNAME" \
+            -d "host=prometheus" \
+            -d "record=${{ env.DNS_NAME }}" \
+            -d "ttl=60"            
+
       - name: Generate Kubeconfig for Jenkins
         run: |
           TOKEN=$(kubectl -n default get secret $(kubectl -n default get sa/jenkins -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode)

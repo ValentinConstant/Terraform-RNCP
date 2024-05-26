@@ -3,8 +3,8 @@ ingress:
     annotations: 
       kubernetes.io/ingress.class: traefik
     hosts:
-      - app.kbnhvn-project.eu
-    path: /grafana
+      - grafana.kbnhvn-project.eu
+    path: /
     pathType: Prefix
 service:
   enabled: true
