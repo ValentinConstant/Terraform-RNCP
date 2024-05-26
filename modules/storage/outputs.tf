@@ -25,5 +25,5 @@ output "efs_storage_access_point" {
 
 output "efs_mount_target_dns" {
   description = "Address of the mount target provisioned."
-  value       = aws_efs_mount_target.az_3.mount_target_dns_name
+  value       = aws_efs_mount_target.az_3.ip_address
 }
