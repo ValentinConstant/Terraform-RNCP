@@ -10,3 +10,13 @@ service:
   enabled: true
   type: ClusterIP
   servicePort: 80
+
+persistentVolume:
+  enabled: true
+  accessModes:
+    - ReadWriteOnce
+
+  existingClaim: "prometheus-pv-claim"
+  mountPath: /data
+  size: 4Gi
+  subPath: "/prometheus"

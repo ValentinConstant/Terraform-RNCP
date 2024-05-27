@@ -106,6 +106,9 @@ Stocke les sauvegardes des bases de données et des configurations critiques.
 ### Utilité : 
 - Fournit des services CI/CD pour automatiser les processus de développement, de test et de déploiement des applications.
 
+### Après installation :
+- Pour afficher le mot de passe : ```kubectl exec -it jenkins-0 -n jenkins -- cat /var/jenkins_home/secrets/initialAdminPassword```
+
 ## ACM (AWS Certificate Manager)
 
 ### Utilité: 
