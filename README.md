@@ -99,13 +99,6 @@ Stocke les sauvegardes des bases de données et des configurations critiques.
 ### Utilité : 
 - Gère le routage du trafic vers les services au sein du cluster Kubernetes, en fournissant des fonctionnalités telles que le middleware, la gestion SSL, et  les règles de routage avancées.
 
-## Jenkins Pod
-
-### Description : 
-- Un conteneur Jenkins déployé sur le cluster EKS.
-### Utilité : 
-- Fournit des services CI/CD pour automatiser les processus de développement, de test et de déploiement des applications.
-
 ### Après installation :
 - Pour afficher le mot de passe : ```kubectl exec -it jenkins-0 -n jenkins -- cat /var/jenkins_home/secrets/initialAdminPassword```
 
