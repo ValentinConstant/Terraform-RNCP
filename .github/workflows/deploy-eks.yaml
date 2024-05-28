@@ -21,8 +21,8 @@ jobs:
       CLOUDNS_AUTH_ID: ${{ secrets.CLOUDNS_AUTH_ID }}
       CLOUDNS_AUTH_PASSWORD: ${{ secrets.CLOUDNS_AUTH_PASSWORD }}
       DOMAIN_NAME: "kbnhvn-project.eu"
-      JENKINS_SUBDOMAIN: "jenkins"
       APP_SUBDOMAIN: "app"
+      DEV_SUBDOMAIN: "dev"
 
     steps:
       - name: Checkout code
@@ -116,6 +116,17 @@ jobs:
             -d "domain-name=${{ env.DOMAIN_NAME }}" \
             -d "record-type=CNAME" \
             -d "host=${{ env.APP_SUBDOMAIN }}" \
+            -d "record=${{ env.DNS_NAME }}" \
+            -d "ttl=60"
+
+      - name: Update ClouDNS CNAME for Dev
+        run: |
+          curl -X POST "${{ env.CLOUDNS_API_URL }}/add-record.json" \
+            -d "auth-id=${{ env.CLOUDNS_AUTH_ID }}" \
+            -d "auth-password=${{ env.CLOUDNS_AUTH_PASSWORD }}" \
+            -d "domain-name=${{ env.DOMAIN_NAME }}" \
+            -d "record-type=CNAME" \
+            -d "host=${{ env.DEV_SUBDOMAIN }}" \
             -d "record=${{ env.DNS_NAME }}" \
             -d "ttl=60"
 
