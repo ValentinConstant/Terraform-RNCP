@@ -86,9 +86,21 @@ jobs:
           sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}/g" k8s-configs/storage/storageClass.yaml
           kubectl apply -f k8s-configs/storage/storageClass.yaml
 
-          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv.yaml
-          sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv.yaml
-          kubectl apply -f k8s-configs/storage/pv.yaml
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-db.yaml
+          sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-db.yaml
+          kubectl apply -f k8s-configs/storage/pv-db.yaml
+
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-es.yaml
+          sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-es.yaml
+          kubectl apply -f k8s-configs/storage/pv-es.yaml
+
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-prom.yaml
+          sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-prom.yaml
+          kubectl apply -f k8s-configs/storage/pv-prom.yaml
+
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-spare.yaml
+          sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-spare.yaml
+          kubectl apply -f k8s-configs/storage/pv-spare.yaml
 
       - name: Deploy grafana
         run: |
