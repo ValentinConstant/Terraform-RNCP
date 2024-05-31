@@ -1,6 +1,11 @@
+ingressClass:
+  enabled: true
+  isDefaultClass: true
 ingressRoute:
   dashboard:
     matchRule: Host('app.kbnhvn-project.eu') && PathPrefix(`/dashboard`, `/dashboard/`) || PathPrefix(`/api`, `/api/`)
+globalArguments:
+- "--api.insecure=false"
 metrics:
   prometheus:
     entryPoint: metrics 
