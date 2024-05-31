@@ -7,7 +7,7 @@ spec:
   storageClassName: efs-sc
   volumeName: efs-pv
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: 5Gi

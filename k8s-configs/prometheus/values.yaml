@@ -14,7 +14,7 @@ service:
 persistentVolume:
   enabled: true
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
 
   existingClaim: "prometheus-pv-claim"
   mountPath: /data
