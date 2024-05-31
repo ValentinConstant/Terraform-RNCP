@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: efs-pv-prom
+  name: efs-pv-grafana
 spec:
   capacity:
     storage: 10Gi
