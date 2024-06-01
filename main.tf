@@ -11,11 +11,11 @@ terraform {
   }
 }
 
-data "aws_acm_certificate" "cert" {
-  domain       = var.domain_name
-  types        = ["AMAZON_ISSUED"]
-  most_recent  = true
-}
+# data "aws_acm_certificate" "cert" {
+#   domain       = var.domain_name
+#   types        = ["AMAZON_ISSUED"]
+#   most_recent  = true
+# }
 
 module "vpc" {
   source  = "./modules/vpc"
