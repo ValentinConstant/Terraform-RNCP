@@ -102,3 +102,13 @@ jobs:
           sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-grafana.yaml
           sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-grafana.yaml
           kubectl apply -f k8s-configs/storage/pv-grafana.yaml
+
+          # Create PersistentVolume for Prometheus DEV
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-prom-dev.yaml
+          sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-prom-dev.yaml
+          kubectl apply -f k8s-configs/storage/pv-prom-dev.yaml
+
+          # Create PersistentVolume for Grafana DEV
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-grafana-dev.yaml
+          sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-grafana-dev.yaml
+          kubectl apply -f k8s-configs/storage/pv-grafana-dev.yaml
