@@ -65,10 +65,10 @@ module "eks" {
   ec2_container_registry = module.iam.ec2_container_registry
 }
 
-# terraform {
-#   backend "s3" {
-#     bucket = "terraform-state-bucket-kbnhvn"
-#     key    = "primary/terraform.tfstate"
-#     region = "eu-west-3"
-#   }
-# }
+terraform {
+  backend "s3" {
+    bucket = "terraform-state-bucket-kbnhvn-9612"
+    key    = "primary/terraform.tfstate"
+    region = "eu-west-3"
+  }
+}
