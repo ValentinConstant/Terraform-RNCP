@@ -62,27 +62,43 @@ jobs:
         run: |
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
-      - name: Create EFS for PersistentVolumes
+      - name: Create EFS PersistentVolumes
         run: |
+
           helm repo add aws-efs-csi-driver https://kubernetes-sigs.github.io/aws-efs-csi-driver/
           helm repo update
           helm upgrade --install aws-efs-csi-driver aws-efs-csi-driver/aws-efs-csi-driver --namespace kube-system
 
+          # Create StorageClass
           sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}/g" k8s-configs/storage/storageClass.yaml
           kubectl apply -f k8s-configs/storage/storageClass.yaml
 
+          # Create PersistentVolume for postgres
           sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-db.yaml
           sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-db.yaml
           kubectl apply -f k8s-configs/storage/pv-db.yaml
 
+          # Create PersistentVolume for Elasticsearch
           sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-es.yaml
           sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-es.yaml
           kubectl apply -f k8s-configs/storage/pv-es.yaml
 
+          # Create PersistentVolume for postgres DEV
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-db-dev.yaml
+          sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-db-dev.yaml
+          kubectl apply -f k8s-configs/storage/pv-db-dev.yaml
+
+          # Create PersistentVolume for Elasticsearch DEV
+          sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-es-dev.yaml
+          sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-es-dev.yaml
+          kubectl apply -f k8s-configs/storage/pv-es-dev.yaml
+
+          # Create PersistentVolume for Prometheus
           sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-prom.yaml
           sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-prom.yaml
           kubectl apply -f k8s-configs/storage/pv-prom.yaml
 
+          # Create PersistentVolume for Grafana
           sed -i "s/<DATA>/${{ env.FILE_SYSTEM_ID }}::${{ env.ACCESS_POINT_ID }}/g" k8s-configs/storage/pv-grafana.yaml
           sed -i "s/<DNS>/${{ env.MOUNT_TARGET }}/g" k8s-configs/storage/pv-grafana.yaml
           kubectl apply -f k8s-configs/storage/pv-grafana.yaml
