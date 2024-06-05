@@ -97,20 +97,58 @@ resource "aws_subnet" "public-eu-west-3c" {
 
 # ------------- NAT GAteway definition ------------ #
 
-resource "aws_eip" "nat" {
+resource "aws_eip" "nat-1" {
   vpc = true
 
   tags = {
-    Name = "nat"
+    Name = "nat-1"
   }
 }
 
-resource "aws_nat_gateway" "nat" {
+resource "aws_eip" "nat-2" {
+  vpc = true
+
+  tags = {
+    Name = "nat-2"
+  }
+}
+
+resource "aws_eip" "nat-3" {
+  vpc = true
+
+  tags = {
+    Name = "nat-3"
+  }
+}
+
+resource "aws_nat_gateway" "nat-1" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.public-eu-west-3a.id
 
   tags = {
-    Name = "nat"
+    Name = "nat-1"
+  }
+
+  depends_on = [aws_internet_gateway.igw]
+}
+
+resource "aws_nat_gateway" "nat-2" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public-eu-west-3b.id
+
+  tags = {
+    Name = "nat-2"
+  }
+
+  depends_on = [aws_internet_gateway.igw]
+}
+
+resource "aws_nat_gateway" "nat-3" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = aws_subnet.public-eu-west-3c.id
+
+  tags = {
+    Name = "nat-3"
   }
 
   depends_on = [aws_internet_gateway.igw]
