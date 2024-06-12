@@ -1,110 +1,46 @@
 # Terraform-RNCP
+Ce repository concerne l'infrastructure de l'application DATA-AIR.
+Dans une optique d'isolation de l'applicatif et de l'infrastructure, le présent repository ne comporte pas le code source de l'application. Pour accéder à celui-ci, voir : https://github.com/kbnhvn/DevOps-RNCP
+
+## Diagramme de l'infrastructure :
+![Capture d'écran 2024-03-13 103535](https://private-user-images.githubusercontent.com/22301011/338943312-8b8c34e5-5a2c-4e5e-b5c8-8de66bf35d2a.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTgxOTEyMjgsIm5iZiI6MTcxODE5MDkyOCwicGF0aCI6Ii8yMjMwMTAxMS8zMzg5NDMzMTItOGI4YzM0ZTUtNWEyYy00ZTVlLWI1YzgtOGRlNjZiZjM1ZDJhLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA2MTIlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwNjEyVDExMTUyOFomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWNkYjQyODFlMDJiNzBkOGI3YzE0OTc5ZmFlNDg3ZmQ0ODM5NGM1NDhmZTc2NjU3YWQ0ZmE4ZmRkNDcxNGJmMTMmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.PNa5W6odoJHCKe1MLE2LSbeIrfZ-X8iLqqdTKffbanU)
+
+Ce diagramme illustre l'architecture détaillée de l'infrastructure AWS déployée pour l’application DATA-AIR. Cette configuration montre comment chaque composant est intégré pour former un système sécurisé et fonctionnel : 
+
+### Région AWS et VPC : 
+Toute l'infrastructure est déployée dans la région AWS **eu-west-3** et encapsulée dans un **Virtual Private Cloud (VPC)** avec un bloc **CIDR de 10.0.0.0/16**, fournissant un environnement réseau isolé pour les ressources AWS.
+### Internet Gateway (IGW) : 
+L'IGW permet aux instances du VPC de se connecter à Internet. Il agit comme un point de sortie pour le trafic réseau **depuis les instances du VPC vers Internet**. 
+### Subnets et NAT Gateways : 
+Trois sous-réseaux publics sont configurés dans **trois zones de disponibilité distinctes (eu-west-3a, eu-west-3b et eu-west-3c)**. Chaque sous-réseau public est associé à sa propre NAT Gateway, permettant aux instances des sous-réseaux privés de se connecter à Internet tout en restant protégées des connexions entrantes non sollicitées. 
+### EKS Cluster et Node Groups : 
+Le cluster EKS gère les applications conteneurisées en orchestrant **le déploiement, la mise à l'échelle, et les opérations des conteneurs**. Les **groupes de nœuds**, constitués d'instances EC2, sont répartis sur les sous-réseaux privés pour une meilleure performance et sécurité. Les groupes **d'auto-scaling** associés assurent une adaptabilité en fonction de la charge de travail. 
+### Load Balancer : 
+Un Classic Load Balancer est positionné en amont du cluster EKS, facilitant la distribution et l'**équilibrage du trafic entrant vers les microservices de l'application**. 
+### EFS (Elastic File System) : 
+EFS fournit un **système de fichiers partagé et persistant**, accessible par les nœuds du cluster EKS. Les **cibles de montage EFS** sont déployées dans **chaque zone de disponibilité**, permettant aux instances EC2 de monter le système de fichiers de manière **sécurisée et efficace**. 
+### S3 (Simple Storage Service) : 
+S3 est utilisé pour le stockage d'objets et les **sauvegardes des données critiques**. Les données sont stockées de manière durable et peuvent être facilement récupérées en cas de besoin. Cette architecture assure une infrastructure scalable, sécurisée et hautement disponible pour l'application DATA-AIR, tout en offrant des solutions de stockage robustes et flexibles avec EFS et S3.
+
+## Automatisation du déploiement :
+
+Cette infrastructure utilise la solution d'Infrastructure as Code **Terraform** afin d'automatiser le déploiement de l'infrastructure. Le code HCL utilisé par Terraform est ici organisé en différents modules dans une soucis de clarté et maintenabilité :
+
+### Module VPC :
+Déclaration du **VPC**, des **sous-réseaux**, des **NAT gateway**, **Internet Gateway** et **tables de routage**.
+
+### Module IAM :
+Déclaration des différents **roles IAM** et leurs **policies**.
+
+### Module EKS :
+Définition du **cluster Kubernetes EKS** ansi que des différents **noeuds**, types d'**instanaces** et **autoscalling group**.
+
+### Module STORAGE :
+Définition du **stockage EFS**, avec **mount targets** et **access point**, pour le stockage persistant nécéssaires au StatefulSets (bases de données de l'application), aisnsi que les **buckets S3** pour les sauvegardes.
+
+## Déploiement continu :
+
+Le déploiement continu de cette infrastructure utilise un workflow GitHub Actions et permet le lancement des commandes **init/plan/apply de Terraform** pour le déploiement de l'infrastructure, la configuration de kubectl, kubeconfig pour la gestion du cluster, ainsi que l'installation de Helm et la configuration des persistent Volumes.
 
 
-       +-------------------------------------------------------------+
-       |                       AWS Cloud                             |
-       |                                                             |
-       |  +-------------------------+       +---------------------+  |
-       |  |     Public Subnets      |       |    Private Subnets  |  |
-       |  |                         |       |                     |  |
-       |  | +---------------------+ |       | +-----------------+ |  |
-       |  | |      ALB / NLB      | |       | |     EKS Nodes   | |  |
-       |  | |    (Load Balancer)  | |       | |                 | |  |
-       |  | +---------------------+ |       | +-----------------+ |  |
-       |  |                         |       |                     |  |
-       |  | +---------------------+ |       | +-----------------+ |  |
-       |  | |     Traefik Ingress   |<----->| |   Jenkins Pod   | |  |
-       |  | +---------------------+ |       | |                 | |  |
-       |  |                         |       | +-----------------+ |  |
-       |  +-------------------------+       +---------------------+  |
-       |                                                             |
-       |  +----------------------------+    +---------------------+  |
-       |  |        IAM Roles           |    |      ACM Certs      |  |
-       |  |  - EKS Cluster Role        |    | - SSL Certificates  |  |
-       |  |  - Traefik Role            |    |                     |  |
-       |  +----------------------------+    +---------------------+  |
-       +-------------------------------------------------------------+
 
-Cette infrastructure AWS EKS utilise des subnets publics pour exposer des services externes via des Load Balancers et Traefik Ingress Controller, tout en utilisant des subnets privés pour héberger des applications internes comme Jenkins. Les rôles IAM fournissent les permissions nécessaires pour gérer les ressources AWS, et ACM gère les certificats SSL pour sécuriser les communications.
-
-
-## VPC (Virtual Private Cloud)
-
-### Utilité: 
-Fournit un réseau virtuel isolé pour déployer les ressources AWS.
-### Composants:
-- CIDR Block: 10.0.0.0/16 (par exemple).
-
-## Public Subnets
-
-### Utilité: 
-Héberge des ressources accessibles depuis l'Internet public, comme le Load Balancer (ALB) et le NAT Gateway.
-### Composants:
-- Subnet 1: 10.0.1.0/24
-- Subnet 2: 10.0.2.0/24
-
-## Private Subnets
-
-### Utilité: 
-Héberge des ressources internes non accessibles directement depuis l'Internet public, comme les nœuds EKS.
-### Composants:
-- Subnet 1: 10.0.4.0/24
-- Subnet 2: 10.0.5.0/24
-
-## NAT Gateway
-
-### Utilité: 
-Permet aux instances dans les subnets privés de communiquer avec l'Internet tout en restant non accessibles depuis l'extérieur.
-### Localisation: 
-Public Subnet 2.
-
-## EKS Cluster (Elastic Kubernetes Service)
-
-### Utilité: 
-Fournit un environnement Kubernetes managé pour déployer et gérer des applications conteneurisées.
-### Composants:
-- EKS Control Plane: Géré par AWS.
-- EKS Nodes: Instances EC2 dans les subnets privés.
-
-## ALB (Application Load Balancer) / NLB (Network Load Balancer)
-
-### Description : 
-- Load Balancers gérés par AWS pour répartir le trafic entrant vers les services Kubernetes.
-### Utilité : 
-- Répartit le trafic entrant vers les nœuds EKS via Traefik Ingress Controller.
-
-## IAM Roles and Policies
-
-### Utilité: 
-Gère les permissions et les accès pour les différentes ressources AWS.
-### Composants:
-- EKS Role: Permet aux nœuds EKS d'interagir avec d'autres services AWS.
-- KMS Policy: Autorise la création et la gestion de clés KMS.
-- ACM Policy: Autorise l'accès aux certificats ACM.
-- Traefik Role : Permissions pour Traefik pour gérer les ressources AWS nécessaires (comme les Load Balancers).
-
-## S3 Buckets
-
-### Utilité: 
-Stocke les sauvegardes des bases de données et des configurations critiques.
-### Composants:
-- etcd Backup Bucket
-- Postgres Backup Bucket
-- Elasticsearch Backup Bucket
-
-## Traefik Ingress Controller
-
-### Description : 
-- Un contrôleur Ingress qui gère les routages d'entrée pour les services Kubernetes.
-### Utilité : 
-- Gère le routage du trafic vers les services au sein du cluster Kubernetes, en fournissant des fonctionnalités telles que le middleware, la gestion SSL, et  les règles de routage avancées.
-
-### Après installation :
-- Pour afficher le mot de passe : ```kubectl exec -it jenkins-0 -n jenkins -- cat /var/jenkins_home/secrets/initialAdminPassword```
-
-## ACM (AWS Certificate Manager)
-
-### Utilité: 
-Gère les certificats SSL/TLS pour sécuriser les communications entre les clients et les services.
-### Composants:
-- ACM Certificate: Certificat SSL
